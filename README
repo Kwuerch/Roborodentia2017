@@ -1,0 +1,20 @@
+STM32F3-Discovery Application Template
+
+Dependencies:
+ * arm-none-eabi-binutils
+ * arm-none-eabi-gcc
+ * arm-none-eabi-gdb
+ * arm-none-eabi-newlib
+ * openocd
+ * stlink
+
+Make targets:
+ * make				- builds the library and app
+ * make program 	- programs the sfm32f3-discovery board
+ * make debug 		- programs the sfm32f3-discovery board opens gdb, 
+						halts the processor
+ * make clean		- cleans app only
+ * make reallyclean	- cleans app and library
+
+Tested on:
+ * STM32F303VC
