@@ -58,7 +58,7 @@ DEPS = $(addprefix deps/,$(SRCS:.c=.d))
 
 ###################################################
 
-.PHONY: all lib proj program debug clean reallyclean
+.PHONY: all lib proj flash debug clean reallyclean
 
 all: lib proj
 
@@ -83,10 +83,10 @@ $(PROJ_NAME).elf: $(OBJS)
 	$(OBJDUMP) -St $(PROJ_NAME).elf >$(PROJ_NAME).lst
 	$(SIZE) $(PROJ_NAME).elf
 
-program: all
+flash: all
 	openocd -f $(OPENOCD_BOARD_DIR)/stm32f3discovery.cfg -f $(OPENOCD_PROC_FILE) -c "stm_flash `pwd`/$(PROJ_NAME).bin" -c shutdown
 
-debug: program
+debug: flash 
 	$(GDB) -x extra/gdb_cmds $(PROJ_NAME).elf
 
 clean:
