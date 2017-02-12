@@ -1,5 +1,5 @@
 # put your *.c source files here, make should handle the rest!
-SRCS = main.c stm32f30x_it.c stm32f3_discovery.c system_stm32f30x.c
+SRCS = main.c line_sensor.c tim.c gpio.c stm32f30x_it.c stm32f3_discovery.c system_stm32f30x.c
 
 # all the files will be generated with this name (main.elf, main.bin, main.hex, etc)
 PROJ_NAME=main
@@ -26,7 +26,7 @@ OBJCOPY=arm-none-eabi-objcopy
 OBJDUMP=arm-none-eabi-objdump
 SIZE=arm-none-eabi-size
 
-CFLAGS  = -Wall -g -std=c99 -Os  
+CFLAGS  = -Wall -g -std=c99 -Os
 CFLAGS += -mlittle-endian -mcpu=cortex-m4  -march=armv7e-m -mthumb
 CFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 CFLAGS += -ffunction-sections -fdata-sections

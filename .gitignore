@@ -2,6 +2,10 @@
 *.hex
 *.lst
 *.map
+*.log
+*.elf
 objs/
+deps/
+dirs
 tags
 
