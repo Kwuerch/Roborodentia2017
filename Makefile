@@ -1,5 +1,5 @@
 # put your *.c source files here, make should handle the rest!
-SRCS = main.c line_sensor.c tim.c gpio.c stm32f30x_it.c stm32f3_discovery.c system_stm32f30x.c
+SRCS = main.c line_sensor.c tim.c gpio.c stm32f30x_it.c stm32f3_discovery.c system_stm32f30x.c light_wheel.c
 
 # all the files will be generated with this name (main.elf, main.bin, main.hex, etc)
 PROJ_NAME=main
@@ -94,6 +94,7 @@ clean:
 	rm -f objs/*.o
 	rm -f deps/*.d
 	rm -f dirs
+	rm -f openocd.log
 	rm -f $(PROJ_NAME).elf
 	rm -f $(PROJ_NAME).hex
 	rm -f $(PROJ_NAME).bin

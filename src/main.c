@@ -3,6 +3,7 @@
 #include "tim.h"
 #include "gpio.h"
 #include "line_sensor.h"
+#include "light_wheel.h"
 
 RCC_ClocksTypeDef RCC_Clocks;
 
@@ -18,36 +19,19 @@ int main(void)
     RCC_GetClocksFreq(&RCC_Clocks);
     SysTick_Config(RCC_Clocks.HCLK_Frequency / 10000);
 
-    GPIO_INIT_B( MOTOR_PIN_0 | MOTOR_PIN_1 | MOTOR_PIN_2 | MOTOR_PIN_3 );
-    GPIO_INIT_E( MOTOR_PIN_0 );
+    init_light_wheel();
+
+    GPIO_INIT( GPIOB,  MOTOR_PIN_0 | MOTOR_PIN_1 | MOTOR_PIN_2 | MOTOR_PIN_3 );
 
     INIT_TIM1();
     EnableTimerInterrupt_TIM1();
 
-    /* Initialize LEDs and User Button available on STM32F3-Discovery board */
-    //STM_EVAL_LEDInit(LED3);
-
-
     //init_line_sensors();
-    //setupOutputTimer();
 
   /* Infinite loop */
-    int count;
-    int dec;
     while (1)
     {   
-        if( count == 5000 ){
-            if( TIM1 -> CCR1 == 995 ){
-                dec = 1;
-            }else if( TIM1 -> CCR1 == 50){
-                dec = 0;
-            }
-
-            TIM1 -> CCR1 = TIM1 -> CCR1 + (dec ? -1 : 1);
-            count = 0;
-        }
-
-        count ++;
+        update_light_wheel();
     }
 }
 
