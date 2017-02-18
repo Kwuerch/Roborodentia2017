@@ -5,19 +5,21 @@
 
 __IO uint32_t TimingDelay = 0;
 
+int clock_count = 0;
+
 void INIT_TIM1(){
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
 
     TIM_TimeBaseInitTypeDef time;
 
-    time.TIM_Prescaler = 6;
+    time.TIM_Prescaler = 140;
     time.TIM_CounterMode = TIM_CounterMode_Up;
     time.TIM_Period = 1000;
     time.TIM_ClockDivision = TIM_CKD_DIV1;
     time.TIM_RepetitionCounter = 0;
     TIM_TimeBaseInit(TIM1, &time);
 
-    TIM1 -> CCR1 = 200;
+    TIM1 -> CCR1 = 500;
     TIM1 -> CCR2 = 400;
     TIM1 -> CCR3 = 600;
     TIM1 -> CCR4 = 800;
@@ -46,10 +48,38 @@ void EnableTimerInterrupt_TIM1(){
     NVIC_Init(&nvic);
 
     nvic.NVIC_IRQChannel = TIM1_CC_IRQn;
-    nvic.NVIC_IRQChannelPreemptionPriority = 3;
+    nvic.NVIC_IRQChannelPreemptionPriority = 0;
     nvic.NVIC_IRQChannelSubPriority = 1;
     nvic.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&nvic);
+
+}
+
+void EnableTimerInterrupt_TIM2(){
+    NVIC_InitTypeDef nvic;
+    nvic.NVIC_IRQChannel = TIM2_IRQn;
+    nvic.NVIC_IRQChannelPreemptionPriority = 0;
+    nvic.NVIC_IRQChannelSubPriority = 1;
+    nvic.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&nvic);
+}
+
+void INIT_TIM2(){
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+
+    TIM_TimeBaseInitTypeDef time;
+
+    time.TIM_Prescaler = 140;
+    time.TIM_CounterMode = TIM_CounterMode_Up;
+    time.TIM_Period = 1000;
+    time.TIM_ClockDivision = TIM_CKD_DIV1;
+    time.TIM_RepetitionCounter = 0;
+    TIM_TimeBaseInit(TIM2, &time);
+
+    TIM2 -> DIER |= TIM_DIER_UIE;
+
+    // Enable Counter
+    //TIM2 -> CR1 |= TIM_CR1_CEN;
 }
 
 /**
@@ -107,3 +137,26 @@ void TIM1_CC_IRQHandler(){
     }
 }
 
+void TIM2_IRQHandler(){
+    static int count = 0;
+    
+    if( TIM2 -> SR & TIM_SR_UIF ){
+        TIM2 -> SR &= ~TIM_SR_UIF;
+
+        count++;
+        togglePin( STEPPER_PORT, STEPPER_1 );
+
+        /**
+        if( count % 2 ){
+            resetPin( STEPPER_PORT, STEPPER_1 );
+        }else{
+            setPin( STEPPER_PORT, STEPPER_1 );
+        }
+        **/
+
+        if( count == clock_count ){
+            count = 0;
+            TIM2 -> CR1 &= ~TIM_CR1_CEN;
+        }
+    }
+}

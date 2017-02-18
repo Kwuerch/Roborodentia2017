@@ -165,12 +165,4 @@ void SysTick_Handler(void)
   * @}
   */ 
 
-void TIM2_IRQHandler(){
-    if( TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET ){
-        TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-        togglePin(GPIOB, GPIO_Pin_0);
-    }
-}
-
-
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
