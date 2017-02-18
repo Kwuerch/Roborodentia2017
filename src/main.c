@@ -27,9 +27,13 @@ int main(void)
     init_drive_motors();
     init_score_motors();
 
-    drive_score_motor_1(24);
-    Delay(10000);
-    drive_score_motor_1(-24);
+    drive_right_motor(25);
+    drive_center_motor(75);
+    drive_left_motor(-60);
+    // drive_score_motor_1(24);
+    //Delay(10000);
+    //drive_score_motor_1(-24);
+
 
   /* Infinite loop */
     while (1)

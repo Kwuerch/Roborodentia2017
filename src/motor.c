@@ -1,10 +1,11 @@
+#include "motor.h"
 #include "gpio.h"
 #include "tim.h"
 
 extern int clock_count;
 
 void init_drive_motors(){
-    GPIO_INIT( MOTOR_PORT, MOTOR_PIN_0 | MOTOR_PIN_1 | MOTOR_PIN_2 | MOTOR_PIN_3 );
+    GPIO_INIT( DRIVE_MOTOR_PORT, LEFT_DRIVE_MOTOR | RIGHT_DRIVE_MOTOR | CENTER_DRIVE_MOTOR | LEFT_DRIVE_MOTOR_DIR | RIGHT_DRIVE_MOTOR_DIR | CENTER_DRIVE_MOTOR_DIR );
     INIT_TIM1();
     EnableTimerInterrupt_TIM1();
 }
@@ -17,22 +18,48 @@ void init_score_motors(){
 }
 
 // Negative Speed means reverse
-void drive_left_motor(int speed){
+// speed is given by 100
+void drive_left_motor( int8_t speed ){
+    if( speed < 0 ){
+        speed *= -1;
+        setPin( DRIVE_MOTOR_PORT, LEFT_DRIVE_MOTOR_DIR );
+    }else{
+        resetPin( DRIVE_MOTOR_PORT, LEFT_DRIVE_MOTOR_DIR );
+    }
 
+    uint16_t ccr = 10 * speed;
+    LEFT_DRIVE_MOTOR_CCR = ccr;
 }
 
-void drive_right_motor(int speed){
+void drive_right_motor( int8_t speed){
+    if( speed < 0 ){
+        speed *= -1;
+        setPin( DRIVE_MOTOR_PORT, RIGHT_DRIVE_MOTOR_DIR );
+    }else{
+        resetPin( DRIVE_MOTOR_PORT, RIGHT_DRIVE_MOTOR_DIR );
+    }
 
+    uint16_t ccr = 10 * speed;
+    RIGHT_DRIVE_MOTOR_CCR = ccr;
 }
 
-void drive_center_motor(int speed){
+
+// TODO  -99 < speed > 99
+void drive_center_motor(int8_t speed){
+    if( speed < 0 ){
+        speed *= -1;
+        setPin( DRIVE_MOTOR_PORT, CENTER_DRIVE_MOTOR_DIR );
+    }else{
+        resetPin( DRIVE_MOTOR_PORT, CENTER_DRIVE_MOTOR_DIR );
+    }
+
+    uint16_t ccr = 10 * speed;
+    CENTER_DRIVE_MOTOR_CCR = ccr;
 
 }
 
 // Negative Rotation Value means reverse rotation
 void drive_score_motor_1(int rot){
-    // TODO rot must be less than 500
-
     if( rot < 0 ){
         rot *= -1;
         setPin( STEPPER_PORT, STEPPER_DIR_1 );

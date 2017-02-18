@@ -2,6 +2,7 @@
 #include "stm32f30x.h"
 #include "gpio.h"
 #include "tim.h"
+#include "motor.h"
 
 __IO uint32_t TimingDelay = 0;
 
@@ -12,28 +13,25 @@ void INIT_TIM1(){
 
     TIM_TimeBaseInitTypeDef time;
 
-    time.TIM_Prescaler = 140;
+    time.TIM_Prescaler = 6;
     time.TIM_CounterMode = TIM_CounterMode_Up;
     time.TIM_Period = 1000;
     time.TIM_ClockDivision = TIM_CKD_DIV1;
     time.TIM_RepetitionCounter = 0;
     TIM_TimeBaseInit(TIM1, &time);
 
-    TIM1 -> CCR1 = 500;
-    TIM1 -> CCR2 = 400;
-    TIM1 -> CCR3 = 600;
-    TIM1 -> CCR4 = 800;
+    TIM1 -> CCR1 = 0; 
+    TIM1 -> CCR2 = 0;
+    TIM1 -> CCR3 = 0;
 
     TIM1 -> CCER |= TIM_CCER_CC1E |
                     TIM_CCER_CC2E |
-                    TIM_CCER_CC3E |
-                    TIM_CCER_CC4E;
+                    TIM_CCER_CC3E;
 
     TIM1 -> DIER |= TIM_DIER_UIE |
                     TIM_DIER_CC1IE |
                     TIM_DIER_CC2IE |
-                    TIM_DIER_CC3IE |
-                    TIM_DIER_CC4IE;
+                    TIM_DIER_CC3IE;
 
     // Enable Counter
     TIM1 -> CR1  |= TIM_CR1_CEN;
@@ -111,29 +109,41 @@ void TimingDelay_Decrement(void)
 void TIM1_UP_TIM16_IRQHandler(){
     if( TIM1 -> SR &= TIM_SR_UIF ){
         TIM1 -> SR &= ~TIM_SR_UIF;
-        setPin(MOTOR_PORT, MOTOR_PIN_0 | MOTOR_PIN_1 | MOTOR_PIN_2 | MOTOR_PIN_3 );
+
+        /**
+        uint16_t pins = 0;
+        if( RIGHT_DRIVE_MOTOR_CCR != 0 ){
+            pins |= RIGHT_DRIVE_MOTOR;
+        }
+
+        if( LEFT_DRIVE_MOTOR_CCR != 0 ){
+            pins |= LEFT_DRIVE_MOTOR;
+        }
+
+        if( CENTER_DRIVE_MOTOR_CCR != 0 ){
+            pins |= CENTER_DRIVE_MOTOR;
+        }
+
+        setPin( DRIVE_MOTOR_PORT, pins );
+        **/
+        setPin( DRIVE_MOTOR_PORT, RIGHT_DRIVE_MOTOR | CENTER_DRIVE_MOTOR | LEFT_DRIVE_MOTOR );
     }
 }
 
 void TIM1_CC_IRQHandler(){
     if( TIM1 -> SR & TIM_SR_CC1IF ){
         TIM1 -> SR &= ~TIM_SR_CC1IF;
-        resetPin(MOTOR_PORT, MOTOR_PIN_0); 
+        resetPin(DRIVE_MOTOR_PORT, LEFT_DRIVE_MOTOR); 
     }
 
     if( TIM1 -> SR & TIM_SR_CC2IF ){
         TIM1 -> SR &= ~TIM_SR_CC2IF;
-        resetPin(MOTOR_PORT, MOTOR_PIN_1); 
+        resetPin(DRIVE_MOTOR_PORT, RIGHT_DRIVE_MOTOR); 
     }
     
     if( TIM1 -> SR & TIM_SR_CC3IF ){
         TIM1 -> SR &= ~TIM_SR_CC3IF;
-        resetPin(MOTOR_PORT, MOTOR_PIN_2); 
-    }
-    
-    if( TIM1 -> SR & TIM_SR_CC4IF ){
-        TIM1 -> SR &= ~TIM_SR_CC4IF;
-        resetPin(MOTOR_PORT, MOTOR_PIN_3); 
+        resetPin(DRIVE_MOTOR_PORT, CENTER_DRIVE_MOTOR); 
     }
 }
 
