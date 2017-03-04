@@ -3,6 +3,7 @@
 #include "gpio.h"
 #include "tim.h"
 #include "motor.h"
+#include "config.h"
 
 __IO uint32_t TimingDelay = 0;
 

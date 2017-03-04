@@ -1,6 +1,7 @@
 #include "motor.h"
 #include "gpio.h"
 #include "tim.h"
+#include "config.h"
 
 extern int clock_count;
 
@@ -71,6 +72,7 @@ void drive_score_motor_1(int rot){
     TIM2 -> CR1 |= TIM_CR1_CEN;
 }
 
+// TODO
 void drive_score_motor_2(int rot){
 
 

@@ -5,8 +5,17 @@
 #include "line_sensor.h"
 #include "light_wheel.h"
 #include "motor.h"
+#include "movement.h"
+#include "i2c.h"
 
 RCC_ClocksTypeDef RCC_Clocks;
+
+extern uint8_t sensor_c;
+extern uint16_t sensor_lr;
+
+typedef enum{
+    START, REVERSE_TURN, GET_RINGS, TO_FLAG, TO_CENTER, TO_SCORE, DROP_RINGS, SET_FLAG, FOLLOW_LINE, STOP
+}FSM_STATE;
 
 /**
   * @brief  Main program.
@@ -23,26 +32,59 @@ int main(void)
 
     init_light_wheel();
 
-    //init_line_sensors();
+    init_line_sensors();
     init_drive_motors();
     init_score_motors();
 
-    drive_right_motor(25);
-    drive_center_motor(75);
-    drive_left_motor(-60);
-    // drive_score_motor_1(24);
-    //Delay(10000);
-    //drive_score_motor_1(-24);
+    FSM_STATE state = FOLLOW_LINE;
 
 
   /* Infinite loop */
     while (1)
     {   
+        update_line_sensors();
         update_light_wheel();
+        follow_line_fw();
 
-        //drive_score_motor_1(500);
-        //Delay(100);
-        //drive_score_motor_1(500);
+        /**
+        switch( state ){
+            case STOP:
+                state = STOP;
+                break;
+                
+            case FOLLOW_LINE:
+                if( follow_line_fw() == NEXT ){
+                    state = STOP;
+                }
+                break;
+            default:
+                state = FOLLOW_LINE;
+                break;
+        }
+                
+            /** case START:
+                state = GET_RINGS;
+                break;
+
+            case REVERSE_TURN:
+                if( reverse_turn_fsm() == NEXT_STATE ){
+                    state = TO_CENTER;
+                }
+                break;
+
+
+
+            case GET_RINGS:
+            case TO_FLAG:
+            case TO_CENTER:
+            case TO_SCORE:
+            case DROP_RINGS:
+            case SET_FLAG:
+
+            default:
+                state = START;
+                break;
+        }
+        **/
     }
 }
-

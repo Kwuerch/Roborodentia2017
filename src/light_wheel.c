@@ -1,5 +1,6 @@
 #include "light_wheel.h"
 #include "gpio.h"
+#include "config.h"
 
 uint16_t LEDS[] = {LED3, LED5, LED7, LED9, LED10, LED8, LED6, LED4 };
 
