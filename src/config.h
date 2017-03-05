@@ -25,6 +25,16 @@
 #define STEPPER_2 GPIO_Pin_10
 #define STEPPER_DIR_2 GPIO_Pin_11
 
+#define MOTOR_SPEED_FAST 700
+#define MOTOR_SPEED_SLOW  600
+
+// Pwm diff of right and left from normal speed
+#define MOTOR_TURNING_DIFF 200 
+
+// Pwm diff of right - left motors
+#define MOTOR_DIFF -100
+
+
 /** Line Sensor **/
 
 /** TODO These next two statements need to be the same PORT **/

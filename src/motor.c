@@ -18,6 +18,89 @@ void init_score_motors(){
     EnableTimerInterrupt_TIM2();
 }
 
+void drive_left_motor( MOTOR_SPEED_STATE mss, MOTOR_MOVEMENT_STATE mms ){
+    if( mss == STOPPED ){
+        resetPin( DRIVE_MOTOR_PORT, LEFT_DRIVE_MOTOR_DIR );
+        LEFT_DRIVE_MOTOR_CCR = 20;
+        return;
+    }
+
+    if( mss == FAST_RV || mss == SLOW_RV ){
+        setPin( DRIVE_MOTOR_PORT, LEFT_DRIVE_MOTOR_DIR );
+    }else{
+        resetPin( DRIVE_MOTOR_PORT, LEFT_DRIVE_MOTOR_DIR );
+    }
+
+    if( mss == FAST_FW || mss == FAST_RV ){
+        switch( mms ){
+            case PIVOT:
+                LEFT_DRIVE_MOTOR_CCR = MOTOR_SPEED_FAST - MOTOR_TURNING_DIFF;
+                break;
+            case MOVING:
+                LEFT_DRIVE_MOTOR_CCR = MOTOR_SPEED_FAST + MOTOR_TURNING_DIFF;
+                break;
+            default:
+                LEFT_DRIVE_MOTOR_CCR = MOTOR_SPEED_FAST;
+                break;
+        }
+        
+    }else{
+        switch( mms ){
+            case PIVOT:
+                LEFT_DRIVE_MOTOR_CCR = MOTOR_SPEED_SLOW - MOTOR_TURNING_DIFF;
+                break;
+            case MOVING:
+                LEFT_DRIVE_MOTOR_CCR = MOTOR_SPEED_SLOW + MOTOR_DIFF + MOTOR_TURNING_DIFF;
+                break;
+            default:
+                LEFT_DRIVE_MOTOR_CCR = MOTOR_SPEED_SLOW;
+                break;
+        }
+    }
+}
+
+void drive_right_motor( MOTOR_SPEED_STATE mss, MOTOR_MOVEMENT_STATE mms ){
+    if( mss == STOPPED ){
+        resetPin( DRIVE_MOTOR_PORT, RIGHT_DRIVE_MOTOR_DIR );
+        RIGHT_DRIVE_MOTOR_CCR = 20;
+        return;
+    }
+
+    if( mss == FAST_RV || mss == SLOW_RV ){
+        setPin( DRIVE_MOTOR_PORT, RIGHT_DRIVE_MOTOR_DIR );
+    }else{
+        resetPin( DRIVE_MOTOR_PORT, RIGHT_DRIVE_MOTOR_DIR );
+    }
+
+    if( mss == FAST_FW || mss == FAST_RV ){
+        switch( mms ){
+            case PIVOT:
+                RIGHT_DRIVE_MOTOR_CCR = MOTOR_SPEED_FAST + MOTOR_DIFF - MOTOR_TURNING_DIFF;
+                break;
+            case MOVING:
+                RIGHT_DRIVE_MOTOR_CCR = MOTOR_SPEED_FAST + MOTOR_DIFF + MOTOR_TURNING_DIFF;
+                break;
+            default:
+                RIGHT_DRIVE_MOTOR_CCR = MOTOR_SPEED_FAST + MOTOR_DIFF;
+                break;
+        }
+        
+    }else{
+        switch( mms ){
+            case PIVOT:
+                RIGHT_DRIVE_MOTOR_CCR = MOTOR_SPEED_SLOW + MOTOR_DIFF - MOTOR_TURNING_DIFF;
+                break;
+            case MOVING:
+                RIGHT_DRIVE_MOTOR_CCR = MOTOR_SPEED_SLOW + MOTOR_DIFF + MOTOR_TURNING_DIFF;
+                break;
+            default:
+                RIGHT_DRIVE_MOTOR_CCR = MOTOR_SPEED_SLOW + MOTOR_DIFF;
+                break;
+        }
+    }
+}
+
+/**
 // Negative Speed means reverse
 // speed is given by 100
 void drive_left_motor( int8_t speed ){
@@ -44,6 +127,7 @@ void drive_right_motor( int8_t speed){
     RIGHT_DRIVE_MOTOR_CCR = ccr;
 }
 
+**/
 
 // TODO  -99 < speed > 99
 void drive_center_motor(int8_t speed){

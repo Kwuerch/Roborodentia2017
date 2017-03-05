@@ -2,7 +2,7 @@
 #define LINE_SENSOR_H
 
 typedef enum{
-   LEFT, CENTER, RIGHT
+   LEFT, CENTER, RIGHT, FULL
 }SENSOR_LOC;
 
 SENSOR_LOC line_loc();

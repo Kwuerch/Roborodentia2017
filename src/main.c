@@ -38,15 +38,13 @@ int main(void)
 
     FSM_STATE state = FOLLOW_LINE;
 
-
   /* Infinite loop */
     while (1)
     {   
-        update_line_sensors();
+        //update_line_sensors();
         update_light_wheel();
-        follow_line_fw();
+        //follow_line_rv();
 
-        /**
         switch( state ){
             case STOP:
                 state = STOP;
@@ -54,6 +52,8 @@ int main(void)
                 
             case FOLLOW_LINE:
                 if( follow_line_fw() == NEXT ){
+                    drive_left_motor( STOPPED, NORMAL );
+                    drive_right_motor( STOPPED, NORMAL );
                     state = STOP;
                 }
                 break;

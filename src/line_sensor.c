@@ -4,8 +4,8 @@
 
 #include "gpio.h"
 
-uint8_t sensor_c = 0;
-uint16_t sensor_lr = 0;
+uint8_t sensor_c;
+uint16_t sensor_lr;
 
 void init_line_sensors(){
     GPIO_InitTypeDef gpio;
@@ -32,11 +32,28 @@ void init_line_sensors(){
 
 void update_line_sensors(){
     sensor_c = ((LS_PORT_C -> IDR) >> 8) & 0xFF;
+    /**
+    if( line_loc() == CENTER ){
+        GPIOE -> ODR = 0x0000;
+        uint16_t test = sensor_c << 8;
+        GPIOE -> ODR = test;
+    }else if( line_loc() == RIGHT ){
+        GPIOE -> ODR  = 0x0F00;
+    }else{
+        GPIOE -> ODR = 0xF000;
+    }
+    **/
     //sensor_lr = (LS_PORT_LR -> IDR) & 0xFFFF;
 }
 
 SENSOR_LOC line_loc(){
-    if( sensor_c & LEFT_MASK ){
+    sensor_c = ((LS_PORT_C -> IDR) >> 8) & 0xFF;
+  
+    if( sensor_c == FULL_MASK ){
+        return FULL;
+    }else if( sensor_c & CENTER_MASK ){
+        return CENTER;
+    }else if( sensor_c & LEFT_MASK ){
         return LEFT;
     }else if( sensor_c & RIGHT_MASK ){
         return RIGHT;

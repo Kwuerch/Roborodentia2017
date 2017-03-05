@@ -4,13 +4,12 @@
 #include "motor.h"
 
 typedef enum{
-    TO_LINE_REV, TURNING, START, CENTERED, OVER_RIGHT, OVER_LEFT
+    TO_LINE_REV, TURNING, START, CENTERED, OVER_RIGHT, OVER_LEFT, WAIT
 }FSM_STATE;
 
 
-extern uint8_t sensor_c;
-
 STATE_TRANSITION reverse_turn_fsm(){
+    /**
     static FSM_STATE state = TO_LINE_REV;
 
     switch( state ){
@@ -43,98 +42,133 @@ STATE_TRANSITION reverse_turn_fsm(){
             state = TO_LINE_REV;
 
     }
-
-    return CONTINUE;
-}
-
-STATE_TRANSITION follow_line_fw(){
-    static FSM_STATE state = CENTERED;
-
-    SENSOR_LOC loc;
-
-    switch( state ){
-        case CENTERED:
-            if( (loc = line_loc()) == RIGHT ){
-                state = OVER_LEFT;
-            }else if( loc == LEFT ){
-                state = OVER_RIGHT;
-            }else{
-                drive_left_motor(50);
-                drive_right_motor(50);
-            }
-
-            break;
-        case OVER_LEFT:
-            drive_left_motor(52);
-            drive_right_motor(48);
-            state = CENTERED;
-
-            /**
-            if( (loc = line_loc()) == CENTER ){
-                state = CENTERED;
-            }else if( loc == LEFT ){
-                state = OVER_RIGHT;
-            }
-            **/
-            break;
-        case OVER_RIGHT:
-            drive_left_motor(48);
-            drive_right_motor(52);
-
-            /**
-            if( (loc = line_loc()) == CENTER ){
-                state = CENTERED;
-            }else if( loc == RIGHT ){
-                state = OVER_LEFT;
-            }
-            **/
-            state = CENTERED;
-            break;
-        default:
-            state = CENTERED;
-    }
-
-    /**
-    if( sensor_c & FULL_MASK ){
-        return NEXT;
-    }
     **/
 
     return CONTINUE;
 }
 
-STATE_TRANSITION follow_line_rv(){
+STATE_TRANSITION follow_line_fw(){
+    static FSM_STATE ps = CENTERED;
     static FSM_STATE state = CENTERED;
 
-    SENSOR_LOC loc;
-
+    SENSOR_LOC loc = line_loc();
     switch( state ){
         case CENTERED:
-            if( (loc = line_loc()) == RIGHT ){
-                state = OVER_RIGHT;
-            }else if( loc == LEFT ){
-                state = OVER_LEFT;
-            }
-            drive_left_motor(-50);
-            drive_right_motor(-50);
+            drive_left_motor( FAST_FW, NORMAL  );
+            drive_right_motor( FAST_FW, NORMAL );
+            ps = CENTERED;
+            state = WAIT;
             break;
+
         case OVER_LEFT:
-            drive_left_motor(-48);
-            drive_right_motor(-52);
-            state = CENTERED;
+            drive_left_motor( FAST_FW, MOVING );
+            drive_right_motor( FAST_FW, PIVOT );
+            ps = OVER_LEFT;
+            state = WAIT;
             break;
+
         case OVER_RIGHT:
-            drive_left_motor(-52);
-            drive_right_motor(-48);
-            state = CENTERED;
+            drive_left_motor( FAST_FW, PIVOT );
+            drive_right_motor( FAST_FW, MOVING );
+            ps = OVER_RIGHT;
+            state = WAIT;
             break;
+            
+        case WAIT:
+
+            if( loc == RIGHT ){
+                if( ps == OVER_LEFT ){
+                    break;
+                }
+
+                state = OVER_LEFT;
+            }else if( loc == LEFT ){
+                if( ps == OVER_RIGHT ){
+                    break;
+                }
+
+                state = OVER_RIGHT;
+            }else{
+                if( ps == CENTERED ){
+                    break;
+                }
+
+                state = CENTERED;
+            }
+
+            break;
+
         default:
             state = CENTERED;
     }
 
+    if( loc == FULL ){
+        return NEXT;
+    }
+
+    return CONTINUE;
+}
+
+STATE_TRANSITION follow_line_rv(){
+    static FSM_STATE ps = CENTERED;
+    static FSM_STATE state = CENTERED;
+
+    SENSOR_LOC loc = line_loc();
+    switch( state ){
+        case CENTERED:
+            drive_left_motor( FAST_RV, NORMAL  );
+            drive_right_motor( FAST_RV, NORMAL );
+            ps = CENTERED;
+            state = WAIT;
+            break;
+
+        case OVER_LEFT:
+            drive_left_motor( FAST_RV, PIVOT );
+            drive_right_motor( FAST_RV, MOVING );
+            ps = OVER_LEFT;
+            state = WAIT;
+            break;
+
+        case OVER_RIGHT:
+            drive_left_motor( FAST_RV, MOVING );
+            drive_right_motor( FAST_RV, PIVOT );
+            ps = OVER_RIGHT;
+            state = WAIT;
+            break;
+            
+        case WAIT:
+
+            if( loc == LEFT ){
+                if( ps == OVER_LEFT ){
+                    break;
+                }
+
+                state = OVER_LEFT;
+            }else if( loc == RIGHT ){
+                if( ps == OVER_RIGHT ){
+                    break;
+                }
+
+                state = OVER_RIGHT;
+            }else{
+                if( ps == CENTERED ){
+                    break;
+                }
+
+                state = CENTERED;
+            }
+
+            break;
+
+        default:
+            state = CENTERED;
+    }
+
+    /*
     if( sensor_c & FULL_MASK ){
         return NEXT;
     }
+    */
 
     return CONTINUE;
 }
