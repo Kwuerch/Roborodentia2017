@@ -2,11 +2,15 @@
 #define LINE_SENSOR_H
 
 typedef enum{
-   LEFT, CENTER, RIGHT, FULL
+   LEFT, CENTER, RIGHT, FULL, EMPTY
 }SENSOR_LOC;
 
-SENSOR_LOC line_loc();
+typedef enum{
+   LS_FRONT, LS_BACK
+}LINE_SENSOR_T;
+
+SENSOR_LOC line_loc( LINE_SENSOR_T );
+void test_line_sensors( LINE_SENSOR_T );
 void init_line_sensors();
-void update_line_sensors();
 
 #endif

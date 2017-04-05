@@ -14,7 +14,7 @@ void INIT_TIM1(){
 
     TIM_TimeBaseInitTypeDef time;
 
-    time.TIM_Prescaler = 6;
+    time.TIM_Prescaler = 12;
     time.TIM_CounterMode = TIM_CounterMode_Up;
     time.TIM_Period = 1000;
     time.TIM_ClockDivision = TIM_CKD_DIV1;

@@ -129,18 +129,45 @@ void drive_right_motor( int8_t speed){
 
 **/
 
-// TODO  -99 < speed > 99
-void drive_center_motor(int8_t speed){
-    if( speed < 0 ){
-        speed *= -1;
+void drive_center_motor( MOTOR_SPEED_STATE mss, MOTOR_MOVEMENT_STATE mms ){
+    if( mss == STOPPED ){
+        resetPin( DRIVE_MOTOR_PORT, CENTER_DRIVE_MOTOR_DIR );
+        CENTER_DRIVE_MOTOR_CCR = 20;
+        return;
+    }
+
+    if( mss == FAST_RV || mss == SLOW_RV ){
         setPin( DRIVE_MOTOR_PORT, CENTER_DRIVE_MOTOR_DIR );
     }else{
         resetPin( DRIVE_MOTOR_PORT, CENTER_DRIVE_MOTOR_DIR );
     }
 
-    uint16_t ccr = 10 * speed;
-    CENTER_DRIVE_MOTOR_CCR = ccr;
-
+    if( mss == FAST_FW || mss == FAST_RV ){
+        switch( mms ){
+            case PIVOT:
+                CENTER_DRIVE_MOTOR_CCR = MOTOR_SPEED_FAST + MOTOR_DIFF - MOTOR_TURNING_DIFF;
+                break;
+            case MOVING:
+                CENTER_DRIVE_MOTOR_CCR = MOTOR_SPEED_FAST + MOTOR_DIFF + MOTOR_TURNING_DIFF;
+                break;
+            default:
+                CENTER_DRIVE_MOTOR_CCR = MOTOR_SPEED_FAST + MOTOR_DIFF;
+                break;
+        }
+        
+    }else{
+        switch( mms ){
+            case PIVOT:
+                CENTER_DRIVE_MOTOR_CCR = MOTOR_SPEED_SLOW + MOTOR_DIFF - MOTOR_TURNING_DIFF;
+                break;
+            case MOVING:
+                CENTER_DRIVE_MOTOR_CCR = MOTOR_SPEED_SLOW + MOTOR_DIFF + MOTOR_TURNING_DIFF;
+                break;
+            default:
+                CENTER_DRIVE_MOTOR_CCR = MOTOR_SPEED_SLOW + MOTOR_DIFF;
+                break;
+        }
+    }
 }
 
 // Negative Rotation Value means reverse rotation

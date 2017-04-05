@@ -6,7 +6,8 @@
 #include "light_wheel.h"
 #include "motor.h"
 #include "movement.h"
-#include "i2c.h"
+#include "bumper.h"
+#include "config.h"
 
 RCC_ClocksTypeDef RCC_Clocks;
 
@@ -14,7 +15,7 @@ extern uint8_t sensor_c;
 extern uint16_t sensor_lr;
 
 typedef enum{
-    START, REVERSE_TURN, GET_RINGS, TO_FLAG, TO_CENTER, TO_SCORE, DROP_RINGS, SET_FLAG, FOLLOW_LINE, STOP
+    WALL_TO_CEN, ROT_RT_90, ROT_LF_90, CEN_TO_WALL
 }FSM_STATE;
 
 /**
@@ -33,58 +34,99 @@ int main(void)
     init_light_wheel();
 
     init_line_sensors();
+    init_bumper();
     init_drive_motors();
     init_score_motors();
 
-    FSM_STATE state = FOLLOW_LINE;
+    FSM_STATE state = WALL_TO_CEN;
+    uint8_t from_sup = 1;
 
-  /* Infinite loop */
+    drive_left_motor( STOPPED, NORMAL );
+    drive_right_motor( STOPPED, NORMAL );
+    drive_center_motor( STOPPED, NORMAL );
+
     while (1)
     {   
-        //update_line_sensors();
-        update_light_wheel();
-        //follow_line_rv();
+        /**
+        uint16_t old_odr = 0xFF00;
+        uint16_t odr = 0x0000;
 
-        switch( state ){
-            case STOP:
-                state = STOP;
+        SENSOR_LOC sl = line_loc(LS_FRONT);
+        switch( sl ){
+            case FULL:
+                odr = 0xFF00;
                 break;
-                
-            case FOLLOW_LINE:
-                if( follow_line_fw() == NEXT ){
-                    drive_left_motor( STOPPED, NORMAL );
-                    drive_right_motor( STOPPED, NORMAL );
-                    state = STOP;
-                }
+            case LEFT:
+                odr= 0xF000;
                 break;
-            default:
-                state = FOLLOW_LINE;
+            case RIGHT:
+                odr = 0x0F00;
+                break;
+            case CENTER:
+                odr = 0x1800;
+                break;
+            case EMPTY:
+                odr = 0x0000;
                 break;
         }
-                
-            /** case START:
-                state = GET_RINGS;
-                break;
 
-            case REVERSE_TURN:
-                if( reverse_turn_fsm() == NEXT_STATE ){
-                    state = TO_CENTER;
+        if( old_odr != odr ){
+            GPIOE -> ODR = odr;
+            old_odr = odr;
+        }
+        **/
+
+
+        //test_line_sensors( LS_FRONT );
+        update_light_wheel();
+
+        /**
+        switch( state ){
+            case WALL_TO_CEN:
+                if( cen_to_wall() == NEXT ){
+                    state = ROT_LF_90;
                 }
+
                 break;
-
-
-
-            case GET_RINGS:
-            case TO_FLAG:
-            case TO_CENTER:
-            case TO_SCORE:
-            case DROP_RINGS:
-            case SET_FLAG:
-
             default:
-                state = START;
                 break;
         }
         **/
+
+        switch( state ){
+            case WALL_TO_CEN:
+                if( wall_to_cen() == NEXT ){
+                    if( from_sup ){
+                        from_sup = 0;
+                        state = ROT_LF_90;    
+                    }else{
+                        from_sup = 1;
+                        state = ROT_RT_90;
+                    }
+                }
+                break;
+
+            case ROT_LF_90:
+                if( rotate_left_90() == NEXT ){
+                    state = CEN_TO_WALL;
+                }
+            break;
+
+            case ROT_RT_90:
+                if( rotate_right_90() == NEXT ){
+                    state = CEN_TO_WALL;
+                }
+            break;
+
+            case CEN_TO_WALL:
+                if( cen_to_wall() == NEXT){
+                    state = WALL_TO_CEN;
+                }
+            break;
+
+            default:
+                state = WALL_TO_CEN;
+                break;
+        }
     }
 }
