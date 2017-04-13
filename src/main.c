@@ -6,6 +6,8 @@
 #include "light_wheel.h"
 #include "motor.h"
 #include "movement.h"
+#include "mov_lin.h"
+#include "mov_rot.h"
 #include "bumper.h"
 #include "config.h"
 
@@ -25,7 +27,7 @@ void game_fsm(){
     }
 }
 
-int test_line_sensor( LS_SENSOR lss){
+int test_line_sensor( LINE_SENSOR_T lss){
     while( 1 ){
         test_line_sensors( lss );
     }
