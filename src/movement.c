@@ -1,6 +1,8 @@
 #include "config.h"
 #include "line_sensor.h"
 #include "movement.h"
+#include "mov_lin.h"
+#include "mov_rot.h"
 #include "motor.h"
 #include "bumper.h"
 

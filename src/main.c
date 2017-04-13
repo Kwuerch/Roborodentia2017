@@ -27,7 +27,7 @@ void game_fsm(){
     }
 }
 
-int test_line_sensor( LINE_SENSOR_T lss){
+int test_line_sensor_inf( LINE_SENSOR_T lss){
     while( 1 ){
         test_line_sensors( lss );
     }
@@ -60,7 +60,7 @@ int main(void)
     drive_right_motor( STOPPED, NORMAL );
     drive_center_motor( STOPPED, NORMAL );
 
-    //test_line_sensors_inf( LS_SCORE );
+    test_line_sensor_inf( LS_SUPPLY );
 
     while (1)
     {   
