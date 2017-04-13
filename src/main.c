@@ -18,6 +18,19 @@ typedef enum{
     WALL_TO_CEN, ROT_RT_90, ROT_LF_90, CEN_TO_WALL
 }FSM_STATE;
 
+void game_fsm(){
+    while( 1 ){
+        update_light_wheel();
+
+    }
+}
+
+int test_line_sensor( LS_SENSOR lss){
+    while( 1 ){
+        test_line_sensors( lss );
+    }
+}
+
 /**
   * @brief  Main program.
   * @param  None 
@@ -45,53 +58,11 @@ int main(void)
     drive_right_motor( STOPPED, NORMAL );
     drive_center_motor( STOPPED, NORMAL );
 
+    //test_line_sensors_inf( LS_SCORE );
+
     while (1)
     {   
-        /**
-        uint16_t old_odr = 0xFF00;
-        uint16_t odr = 0x0000;
-
-        SENSOR_LOC sl = line_loc(LS_FRONT);
-        switch( sl ){
-            case FULL:
-                odr = 0xFF00;
-                break;
-            case LEFT:
-                odr= 0xF000;
-                break;
-            case RIGHT:
-                odr = 0x0F00;
-                break;
-            case CENTER:
-                odr = 0x1800;
-                break;
-            case EMPTY:
-                odr = 0x0000;
-                break;
-        }
-
-        if( old_odr != odr ){
-            GPIOE -> ODR = odr;
-            old_odr = odr;
-        }
-        **/
-
-
-        //test_line_sensors( LS_FRONT );
         update_light_wheel();
-
-        /**
-        switch( state ){
-            case WALL_TO_CEN:
-                if( cen_to_wall() == NEXT ){
-                    state = ROT_LF_90;
-                }
-
-                break;
-            default:
-                break;
-        }
-        **/
 
         switch( state ){
             case WALL_TO_CEN:

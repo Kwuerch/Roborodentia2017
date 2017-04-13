@@ -25,8 +25,8 @@
 #define STEPPER_2 GPIO_Pin_10
 #define STEPPER_DIR_2 GPIO_Pin_11
 
-#define MOTOR_SPEED_FAST 800
-#define MOTOR_SPEED_SLOW 650 
+#define MOTOR_SPEED_FAST 650 
+#define MOTOR_SPEED_SLOW 625 
 
 // Pwm diff of right and left from normal speed
 #define MOTOR_TURNING_DIFF 100 
@@ -47,22 +47,28 @@
 /** Line Sensor **/
 
 /** TODO These next two statements need to be the same PORT **/
-#define LS_PORT_CLOCK RCC_AHBPeriph_GPIOD
+#define LS_PORT_CLOCK_F_B RCC_AHBPeriph_GPIOD
+#define LS_PORT_CLOCK_SC_SP RCC_AHBPeriph_GPIOA
 
-#define LS_PORT_F GPIOD
-#define LS_PORT_B GPIOD
-
-#define LS_PORT_LR GPIOE
+#define LS_PORT_F_B GPIOD
+#define LS_PORT_SC_SP GPIOA
 
 #define LS_FRONT_PINS GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15
 
 #define LS_BACK_PINS GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7
+
+#define LS_SCORE_PINS GPIO_Pin_0 | GPIO_Pin_1
+#define LS_SUPPLY_PINS GPIO_Pin_2 | GPIO_Pin_3
 
 #define FULL_MASK 0xFF
 #define EMPTY_MASK 0x00
 #define CENTER_MASK 0x18
 #define RIGHT_MASK 0x07
 #define LEFT_MASK 0xE0
+
+#define FULL_MASK2 0x03
+#define RIGHT_MASK2 0x01
+#define LEFT_MASK2 0x02
 
 /** Timer **/
 #define PWM_RANGE 990
