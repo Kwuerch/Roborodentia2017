@@ -97,6 +97,8 @@
 /** Timer **/
 #define PWM_RANGE 990
 
+#define TURN_DELAY 1500
+
 /** Light Wheel **/
 #define LED3 GPIO_Pin_9
 #define LED4 GPIO_Pin_8

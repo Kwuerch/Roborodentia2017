@@ -14,7 +14,7 @@ typedef enum{
 }FSM_STATE;
 
 typedef enum{
-    TO_LINE, TO_LINE_RV, TO_PAST_LINE, FROM_SIDE, ALIGN_RIGHT, ALIGN_LEFT, ALIGN_DELAY, ALIGN_STOPPED
+    TO_LINE, TO_LINE_RV, TO_PAST_LINE, FROM_SIDE, ALIGN_RIGHT, ALIGN_LEFT, ALIGN_DELAY, ALIGN_STOPPED, TO_BEFORE_LINE, ALIGN_PAST_LEFT
 }ALIGN_STATE;
 
 // ONLY to be use with 2 light sensor arrays
@@ -89,6 +89,60 @@ STATE_TRANSITION to_past_line_fw( LINE_SENSOR_T ls_t ){
         default:
             state = TO_LINE;
             ps = TO_LINE;
+            motors_on = 0;
+            break;
+
+    }
+
+    return CONTINUE;
+}
+
+// ONLY to be use with 2 light sensor arrays
+STATE_TRANSITION to_before_line_fw( LINE_SENSOR_T ls_t ){
+    static ALIGN_STATE state = TO_LINE;
+    static int motors_on = 0;
+
+    SENSOR_LOC loc = line_loc2( ls_t );
+    SENSOR_LOC floc = line_loc( LS_FRONT );
+
+    switch( state ){
+        case TO_LINE:
+            if( !motors_on ){
+                drive_left_motor( SLOW_FW, NORMAL );
+                drive_right_motor( SLOW_FW, NORMAL );
+                motors_on = 1;
+            }
+
+            if( loc == FULL ){
+                drive_left_motor( STOPPED, NORMAL );
+                drive_right_motor( STOPPED, NORMAL );
+                motors_on = 0;
+
+                state = TO_BEFORE_LINE;
+            }
+
+            break;
+
+        case TO_BEFORE_LINE:
+            if( !motors_on ){
+                drive_left_motor( SLOW_RV, NORMAL );
+                drive_right_motor( SLOW_RV, NORMAL );
+                motors_on = 1;
+            }
+
+            if( floc == FULL ){
+                drive_left_motor( STOPPED, NORMAL );
+                drive_right_motor( STOPPED, NORMAL );
+                motors_on = 0;
+
+                state = TO_LINE;
+                return NEXT;
+            }
+
+            break;
+        
+        default:
+            state = TO_LINE;
             motors_on = 0;
             break;
 
@@ -372,77 +426,49 @@ STATE_TRANSITION align_to_pegs( SUP_SCO_ST sss ){
     static ALIGN_STATE ps = TO_PAST_LINE;
     static int count = 0;
 
-    switch( state ){
-        case TO_PAST_LINE:
-            if( to_past_line_fw( LS_SCORE ) == NEXT ){
+    if( sss == SCO_ST ){
+        switch( state ){
+            case TO_PAST_LINE:
+                if( to_past_line_fw( LS_SCORE ) == NEXT ){
 
-                    state = TO_LINE_RV;
                     state = ALIGN_LEFT;
+                    ps = TO_PAST_LINE;
+                }
 
-                ps = TO_PAST_LINE;
-            }
+                break;
 
-            break;
+            case ALIGN_RIGHT:
+                if( ps != ALIGN_RIGHT ){
+                    drive_center_motor( FAST_RV, NORMAL );
+                }
 
-        case TO_LINE_RV:
-            if( to_past_line_rv_full( LS_FRONT ) == NEXT ){
-                state = ALIGN_LEFT;
-            }
+                state = ALIGN_DELAY;
+                ps = ALIGN_RIGHT; 
+                break;
 
-            break;
+            case ALIGN_LEFT:
+                if( ps != ALIGN_LEFT ){
+                    drive_center_motor( FAST_FW, NORMAL );
+                }
 
-        case ALIGN_RIGHT:
-            if( ps != ALIGN_RIGHT ){
-                drive_center_motor( FAST_RV, NORMAL );
-            }
+                state = ALIGN_DELAY;
+                ps = ALIGN_LEFT; 
+                
+                break;
 
-            state = ALIGN_DELAY;
-            ps = ALIGN_RIGHT; 
-            break;
+            case ALIGN_STOPPED:
+                if( ps != ALIGN_STOPPED ){
+                    drive_center_motor( STOPPED, NORMAL );
+                }
 
-        case ALIGN_LEFT:
-            if( ps != ALIGN_LEFT ){
-                drive_center_motor( FAST_FW, NORMAL );
-            }
+                state = ALIGN_DELAY;
+                ps = ALIGN_STOPPED;
 
-            state = ALIGN_DELAY;
-            ps = ALIGN_LEFT; 
-            
-            break;
+            case ALIGN_DELAY:
+                if( ++count == ALIGN_DELAY_COUNT ){
+                    count = 0;
 
-        case ALIGN_STOPPED:
-            if( ps != ALIGN_STOPPED ){
-                drive_center_motor( STOPPED, NORMAL );
-            }
-
-            state = ALIGN_DELAY;
-            ps = ALIGN_STOPPED;
-
-        case ALIGN_DELAY:
-            if( ++count == ALIGN_DELAY_COUNT ){
-                count = 0;
-
-                SENSOR_LOC loc;
-                if( sss == SUP_ST ){
-                    loc = line_loc2( LS_SUPPLY );
-
-                    if( loc == RIGHT ){
-                        if( ps == ALIGN_STOPPED ){
-                            state = TO_PAST_LINE;
-                            ps = TO_PAST_LINE;
-                            return NEXT;
-                        }
-
-                        state = ALIGN_STOPPED;
-                    }else if( loc == LEFT ){
-                        state = ALIGN_LEFT;
-                    }else if( loc == EMPTY ){
-                        if( ps == ALIGN_STOPPED ){
-                            state = ALIGN_LEFT;
-                        }
-                    }
-
-                }else{
+                    SENSOR_LOC loc;
                     // SCORE 
                     loc = line_loc2( LS_SCORE );
 
@@ -460,20 +486,66 @@ STATE_TRANSITION align_to_pegs( SUP_SCO_ST sss ){
                     }else if( loc == LEFT ){
                         state = ALIGN_LEFT;
                     }
+
+                    // Otherwise Restart Delay Count
                 }
 
+                break;
+            default:
+                state = TO_PAST_LINE;
+                ps = TO_PAST_LINE;
+                break;
+            }
+    }else{
 
+        SENSOR_LOC sploc = line_loc2( LS_SUPPLY );
 
-                // Otherwise Restart Delay Count
+        switch( state ){
+            case TO_PAST_LINE:
+                if( to_before_line_fw( LS_SCORE ) == NEXT ){
+
+                    state = ALIGN_LEFT;
+                    drive_center_motor( SLOW_FW, NORMAL );
+
+                    ps = TO_PAST_LINE;
+                }
+
+                break;
+
+            case ALIGN_LEFT:
+                if( sploc == RIGHT ){
+                    state = ALIGN_PAST_LEFT;
+                }
+                
+                break;
+
+            case ALIGN_PAST_LEFT:
+                if( sploc != RIGHT ){
+
+                    drive_center_motor( SLOW_RV, NORMAL );
+                    state = ALIGN_RIGHT;
+
+                }
+
+                break;
+
+            case ALIGN_RIGHT:
+                if( sploc == RIGHT ){
+                    drive_center_motor( STOPPED, NORMAL );
+                    state = TO_PAST_LINE;
+                    return NEXT;
+                }
+
+                break;
+
+            default:
+                state = TO_PAST_LINE;
+                break;
+
             }
 
-            break;
-        default:
-            state = TO_PAST_LINE;
-            ps = TO_PAST_LINE;
-            break;
-
     }
+
 
 
     return CONTINUE;

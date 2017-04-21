@@ -51,7 +51,7 @@ int main(void)
     drive_right_motor( STOPPED, NORMAL );
     drive_center_motor( STOPPED, NORMAL );
 
-    //test_line_sensor( LS_SCORE );
+    test_line_sensor( LS_SCORE );
     //set_score_motor_rot( SERVO_RIGHT_BOUND );
     //set_score_motor_rot( SERVO_LEFT_BOUND ); 
 
@@ -106,9 +106,7 @@ int main(void)
     **/
 
     // NEEDS ALIGN_TO_SUPPLY_PEGS
-    while( get_supply_pegs() == CONTINUE ){
-        
-    }
+    while( get_supply_pegs() == CONTINUE ){}
   
     while (1)
     {   
@@ -118,9 +116,26 @@ int main(void)
             case WALL_TO_CEN:
                 if( wall_to_cen() == NEXT ){
                     if( sss == SCO_ST ){
+                        drive_left_motor( FAST_RV, NORMAL );
+                        drive_right_motor( FAST_RV, NORMAL );
+
+                        Delay( TURN_DELAY );
+
+                        drive_left_motor( STOPPED, NORMAL );
+                        drive_right_motor( STOPPED, NORMAL );
+
                         state = ROT_LF_90;
+
                     }else{
                         // SUP_ST
+                        drive_left_motor( FAST_RV, NORMAL );
+                        drive_right_motor( FAST_RV, NORMAL );
+
+                        Delay( TURN_DELAY );
+
+                        drive_left_motor( STOPPED, NORMAL );
+                        drive_right_motor( STOPPED, NORMAL );
+
                         state = ROT_RT_90;
                     }
                 }

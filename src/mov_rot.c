@@ -2,11 +2,94 @@
 #include "line_sensor.h"
 #include "mov_rot.h"
 #include "motor.h"
+#include "tim.h"
 
 typedef enum{
-    TURNING_OFF_LINE, TURNING_TO_LINE, TURNING_ON_LINE, CENTERED, ALIGN_TO_LINE, ALIGN_BACK
+    TURNING_OFF_LINE, TURNING_ON_LINE
 }FSM_STATE;
 
+STATE_TRANSITION rotate_left_90(){
+    static FSM_STATE state = TURNING_OFF_LINE;
+    static int motors_on = 0;
+
+    SENSOR_LOC floc = line_loc( LS_FRONT );
+    SENSOR_LOC scloc = line_loc2( LS_SCORE );
+
+    switch( state ){
+        case TURNING_OFF_LINE:
+            if( !motors_on ){
+                drive_left_motor( SLOW_RV, NORMAL );
+                drive_right_motor( SLOW_FW, NORMAL );
+                motors_on = 1;
+            }
+
+            if( scloc == LEFT ){
+                state = TURNING_ON_LINE;
+            }
+            break;
+
+        case TURNING_ON_LINE:
+            if( floc == LEFT ){
+                drive_left_motor( STOPPED, NORMAL );
+                drive_right_motor( STOPPED, NORMAL );
+                motors_on = 0;
+                state = TURNING_OFF_LINE;
+                return NEXT;
+            }
+
+            break;
+
+        default:
+            state = TURNING_OFF_LINE;
+            break;
+    }
+
+    return CONTINUE;
+}
+
+STATE_TRANSITION rotate_right_90(){
+    static FSM_STATE state = TURNING_OFF_LINE;
+    static int motors_on = 0;
+
+    SENSOR_LOC floc = line_loc( LS_FRONT );
+    SENSOR_LOC scloc = line_loc2( LS_SCORE );
+
+    switch( state ){
+        case TURNING_OFF_LINE:
+            if( !motors_on ){
+                drive_left_motor( SLOW_FW, NORMAL );
+                drive_right_motor( SLOW_RV, NORMAL );
+                motors_on = 1;
+            }
+
+
+            if( scloc == RIGHT ){
+                state = TURNING_ON_LINE;
+            }
+            break;
+
+        case TURNING_ON_LINE:
+            if( floc == RIGHT ){
+                drive_left_motor( STOPPED, NORMAL );
+                drive_right_motor( STOPPED, NORMAL );
+
+                motors_on = 0;
+                state = TURNING_OFF_LINE;
+
+                return NEXT;
+            }
+
+            break;
+
+        default:
+            state = TURNING_OFF_LINE;
+            break;
+    }
+
+    return CONTINUE;
+}
+
+/**
 STATE_TRANSITION rotate_left_90(){
     static FSM_STATE state = CENTERED;
 
@@ -30,7 +113,6 @@ STATE_TRANSITION rotate_left_90(){
             break;
 
         case ALIGN_TO_LINE:
-            // TODO **** Change ALIGN TO CENTER TO go EITHER RIGHT or LEFT ****** TODO //
             if( align_to_center_pegsl() == NEXT ){
                 if( bloc == CENTER ){
                     state = CENTERED;
@@ -48,46 +130,10 @@ STATE_TRANSITION rotate_left_90(){
             break;
 
         case ALIGN_BACK:
-            //if( bloc == CENTER ){
-                drive_left_motor( STOPPED, NORMAL );
-                drive_right_motor( STOPPED, NORMAL );
-                state = CENTERED;
-                return NEXT;
-            //}
-
-            break;
-            
-
-        /**
-        case CENTERED:
-            drive_left_motor( SLOW_RV, NORMAL );
-            drive_right_motor( SLOW_FW, NORMAL );
-            state = TURNING_OFF_LINE;
-            break;
-
-        case TURNING_OFF_LINE:
-            if( floc == RIGHT || bloc == LEFT ){
-                state = TURNING_TO_LINE;
-            }
-
-            break;
-
-        case TURNING_TO_LINE:
-            if( floc == LEFT || bloc == CENTER ){
-                drive_right_motor( STOPPED, NORMAL );
-                state = TURNING_ON_LINE;
-            }
-            break;
-
-        case TURNING_ON_LINE:
-            if( floc == CENTER ){
-                drive_left_motor( STOPPED, NORMAL );
-                state = CENTERED;
-                return NEXT;
-
-            }
-            break;
-        **/
+            drive_left_motor( STOPPED, NORMAL );
+            drive_right_motor( STOPPED, NORMAL );
+            state = CENTERED;
+            return NEXT;
 
         default:
             state = CENTERED;
@@ -96,7 +142,9 @@ STATE_TRANSITION rotate_left_90(){
 
     return CONTINUE;
 }
+**/
 
+/**
 STATE_TRANSITION rotate_right_90(){
     static FSM_STATE state = CENTERED;
 
@@ -147,30 +195,6 @@ STATE_TRANSITION rotate_right_90(){
 
             break;
 
-    /**
-    static FSM_STATE state = CENTERED;
-
-    SENSOR_LOC loc = line_loc( LS_FRONT );
-    switch( state ){
-        case CENTERED:
-            drive_left_motor( SLOW_FW, NORMAL );
-            drive_right_motor( SLOW_RV, NORMAL );
-            state = TURNING_TO_LINE;
-            break;
-        case TURNING_TO_LINE:
-            if( loc == RIGHT ){
-                drive_left_motor( STOPPED, NORMAL );
-                state = TURNING_ON_LINE;
-            }
-            break;
-        case TURNING_ON_LINE:
-            if( loc == CENTER ){
-                drive_right_motor( STOPPED, NORMAL );
-                state = CENTERED;
-                return NEXT;
-            }
-            break;
-    **/
         default:
             state = CENTERED;
             break;
@@ -178,3 +202,4 @@ STATE_TRANSITION rotate_right_90(){
 
     return CONTINUE;
 }
+**/
