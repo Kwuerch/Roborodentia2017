@@ -429,7 +429,7 @@ STATE_TRANSITION align_to_pegs( SUP_SCO_ST sss ){
     if( sss == SCO_ST ){
         switch( state ){
             case TO_PAST_LINE:
-                if( to_past_line_fw( LS_SCORE ) == NEXT ){
+                if( fw_slow( LS_SCORE ) == NEXT ){
 
                     state = ALIGN_LEFT;
                     ps = TO_PAST_LINE;

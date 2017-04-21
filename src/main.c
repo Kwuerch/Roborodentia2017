@@ -51,7 +51,7 @@ int main(void)
     drive_right_motor( STOPPED, NORMAL );
     drive_center_motor( STOPPED, NORMAL );
 
-    test_line_sensor( LS_SCORE );
+    //test_line_sensor( LS_SCORE );
     //set_score_motor_rot( SERVO_RIGHT_BOUND );
     //set_score_motor_rot( SERVO_LEFT_BOUND ); 
 
@@ -83,7 +83,7 @@ int main(void)
     while( 1 ){
         switch ( state ) {
             case WALL_TO_CEN:
-                if( to_past_line_fw_full( LS_FRONT ) == NEXT ){
+                if( follow_line_fw( ) == NEXT ){
                     state = ROT_RT_90;
                 }
                 break;

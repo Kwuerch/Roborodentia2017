@@ -8,6 +8,24 @@ typedef enum{
     TO_LINE_REV, TURNING_NO_LINE, TURNING_ON_LINE, START, CENTERED, OVER_RIGHT, OVER_LEFT, WAIT, FROM_CENTER, FROM_WALL, TO_CENTER, TO_WALL, OVER_NONE
 }FSM_STATE;
 
+STATE_TRANSITION fw_slow(){
+    static int motors_on = 0;
+
+    if( !motors_on ){
+        drive_left_motor( SLOW_FW, NORMAL );
+        drive_right_motor( SLOW_FW, NORMAL );
+        motors_on = 1;
+    }
+
+    if( front_bumper_dep() ){
+        drive_left_motor( STOPPED, NORMAL );
+        drive_right_motor( STOPPED, NORMAL );
+        return NEXT;
+    }
+
+    return CONTINUE;
+}
+
 STATE_TRANSITION follow_line_fw(){
     static FSM_STATE ps = CENTERED;
     static FSM_STATE state = CENTERED;
