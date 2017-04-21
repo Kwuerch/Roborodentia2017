@@ -3,6 +3,8 @@
 
 #include "movement.h"
 
+STATE_TRANSITION fw_slow();
+
 STATE_TRANSITION follow_line_fw();
 STATE_TRANSITION follow_line_rv();
 

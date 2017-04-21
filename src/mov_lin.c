@@ -8,6 +8,24 @@ typedef enum{
     TO_LINE_REV, TURNING_NO_LINE, TURNING_ON_LINE, START, CENTERED, OVER_RIGHT, OVER_LEFT, WAIT, FROM_CENTER, FROM_WALL, TO_CENTER, TO_WALL, OVER_NONE
 }FSM_STATE;
 
+STATE_TRANSITION fw_slow(){
+    static int motors_on = 0;
+
+    if( !motors_on ){
+        drive_left_motor( SLOW_FW, NORMAL );
+        drive_right_motor( SLOW_FW, NORMAL );
+        motors_on = 1;
+    }
+
+    if( front_bumper_dep() ){
+        drive_left_motor( STOPPED, NORMAL );
+        drive_right_motor( STOPPED, NORMAL );
+        return NEXT;
+    }
+
+    return CONTINUE;
+}
+
 STATE_TRANSITION follow_line_fw(){
     static FSM_STATE ps = CENTERED;
     static FSM_STATE state = CENTERED;
@@ -126,14 +144,12 @@ STATE_TRANSITION follow_line_rv(){
     static FSM_STATE ps = CENTERED;
     static FSM_STATE state = CENTERED;
 
-    static int past_line = 0;
-
     SENSOR_LOC loc = line_loc( LS_BACK );
+
     switch( state ){
         case CENTERED:
             drive_left_motor( FAST_RV, NORMAL  );
             drive_right_motor( FAST_RV, NORMAL );
-            drive_center_motor( STOPPED, NORMAL );
             ps = CENTERED;
             state = WAIT;
             break;
@@ -141,7 +157,7 @@ STATE_TRANSITION follow_line_rv(){
         case OVER_LEFT:
             drive_left_motor( FAST_RV, MOVING );
             drive_right_motor( FAST_RV, PIVOT );
-            drive_center_motor( STOPPED, NORMAL );
+
             ps = OVER_LEFT;
             state = WAIT;
             break;
@@ -149,31 +165,24 @@ STATE_TRANSITION follow_line_rv(){
         case OVER_RIGHT:
             drive_left_motor( FAST_RV, PIVOT );
             drive_right_motor( FAST_RV, MOVING );
-            drive_center_motor( FAST_FW, NORMAL );
+
             ps = OVER_RIGHT;
             state = WAIT;
             break;
             
         case WAIT:
-
             if( loc == LEFT ){
-                if( ps == OVER_RIGHT ){
-                    break;
+                if( ps != OVER_RIGHT ){
+                    state = OVER_RIGHT;
                 }
-
-                state = OVER_RIGHT;
             }else if( loc == RIGHT ){
-                if( ps == OVER_LEFT ){
-                    break;
+                if( ps != OVER_LEFT ){
+                    state = OVER_LEFT;
                 }
-
-                state = OVER_LEFT;
             }else{
                 if( ps == CENTERED ){
-                    break;
+                    state = CENTERED;
                 }
-
-                state = CENTERED;
             }
 
             break;
@@ -183,19 +192,15 @@ STATE_TRANSITION follow_line_rv(){
     }
 
     if( loc == FULL ){
-        if( past_line ){
-            drive_left_motor( STOPPED, NORMAL );
-            drive_right_motor( STOPPED, NORMAL );
-            drive_center_motor( STOPPED, NORMAL );
-            past_line = 0;
-            state = CENTERED;
-            ps = CENTERED;
-            return NEXT;
-        }
+        drive_left_motor( STOPPED, NORMAL );
+        drive_right_motor( STOPPED, NORMAL );
 
-        return CONTINUE;
-    }else{
-        past_line = 1;
-        return CONTINUE;
+        state = CENTERED;
+        ps = CENTERED;
+
+        return NEXT;
     }
+
+    return CONTINUE;
+
 }

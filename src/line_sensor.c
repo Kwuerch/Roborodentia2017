@@ -26,10 +26,8 @@ void test_line_sensors( LINE_SENSOR_T ls_t ){
         sensor = ((LS_PORT_F_B -> IDR) >> 8) & 0xFF;
     }else if( ls_t == LS_BACK ){
         sensor = (LS_PORT_F_B -> IDR) & 0xFF;
-    }else if( ls_t == LS_SCORE ){
-        sensor = (LS_PORT_SC_SP -> IDR) & 0x03;
-    }else if( ls_t == LS_SUPPLY ){
-        sensor = ((LS_PORT_SC_SP -> IDR) >> 2) & 0x03;
+    }else if( ls_t == LS_SCORE || ls_t == LS_SUPPLY ){
+        sensor = (LS_PORT_SC_SP -> IDR) & 0x0F;
     }else{
         sensor = 0;
     }
@@ -37,7 +35,7 @@ void test_line_sensors( LINE_SENSOR_T ls_t ){
     GPIOE -> ODR = sensor << 8;
 }
 
-SENSOR_LOC line_loc( LINE_SENSOR_T ls_t ){
+SENSOR_LOC line_loc_cf( LINE_SENSOR_T ls_t ){
     uint16_t sensor;
     if( ls_t == LS_FRONT ){
         sensor = ((LS_PORT_F_B -> IDR) >> 8) & 0xFF;
@@ -55,6 +53,29 @@ SENSOR_LOC line_loc( LINE_SENSOR_T ls_t ){
         return LEFT;
     }else if( sensor & RIGHT_MASK ){
         return RIGHT;
+    }else{
+        return EMPTY;
+    }
+}
+
+SENSOR_LOC line_loc( LINE_SENSOR_T ls_t ){
+    uint16_t sensor;
+    if( ls_t == LS_FRONT ){
+        sensor = ((LS_PORT_F_B -> IDR) >> 8) & 0xFF;
+    }else if( ls_t == LS_BACK ){
+        sensor = (LS_PORT_F_B -> IDR) & 0xFF;
+    }else{
+        sensor = 0;
+    }
+  
+    if( sensor == FULL_MASK ){
+        return FULL;
+    }else if( sensor & LEFT_MASK ){
+        return LEFT;
+    }else if( sensor & RIGHT_MASK ){
+        return RIGHT;
+    }else if( sensor & CENTER_MASK ){
+        return CENTER;
     }else{
         return EMPTY;
     }
