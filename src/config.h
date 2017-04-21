@@ -8,8 +8,9 @@
 #define RIGHT_DRIVE_MOTOR_CCR   TIM1 -> CCR2
 #define CENTER_DRIVE_MOTOR_CCR  TIM3 -> CCR1
 
-#define SERVO_LEFT_BOUND 250
-#define SERVO_RIGHT_BOUND 1200
+#define SERVO_LEFT_BOUND 590
+#define SERVO_RIGHT_BOUND 960 
+#define SERVO_CENTER  850 
 
 #define CCR_ZERO 5 
 #define TIM_PERIOD 1000
@@ -31,7 +32,12 @@
 #define ACMEL_TIM TIM2
 #define ACMER_TIM TIM5
 
+#define ACMER_ROT_VAL 975
+#define ACMEL_ROT_VAL 910
+
 #define STEPPER_PORT GPIOC
+
+#define STEPPER_LR_POWER GPIO_Pin_11 
 
 #define STEPPER_L GPIO_Pin_14
 #define STEPPER_DIR_L GPIO_Pin_15
@@ -44,8 +50,8 @@
 #define SERVO_1 GPIO_Pin_8
 #define SERVO_TIM TIM4
 
-#define MOTOR_SPEED_FAST 680 
-#define MOTOR_SPEED_SLOW 650 
+#define MOTOR_SPEED_FAST 750 
+#define MOTOR_SPEED_SLOW 700 
 
 // Pwm diff of right and left from normal speed
 #define MOTOR_TURNING_DIFF 30 

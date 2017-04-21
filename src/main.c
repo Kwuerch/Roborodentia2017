@@ -8,13 +8,11 @@
 #include "movement.h"
 #include "mov_lin.h"
 #include "mov_rot.h"
+#include "mov_sco.h"
 #include "bumper.h"
 #include "config.h"
 
 RCC_ClocksTypeDef RCC_Clocks;
-
-extern uint8_t sensor_c;
-extern uint16_t sensor_lr;
 
 typedef enum{
     WALL_TO_CEN, ROT_RT_90, ROT_LF_90, CEN_TO_WALL
@@ -53,8 +51,49 @@ int main(void)
     drive_right_motor( STOPPED, NORMAL );
     drive_center_motor( STOPPED, NORMAL );
 
-    //test_line_sensor( LS_FRONT );
-    drive_score_motor_acmer( 930 );
+    //test_line_sensor( LS_SCORE );
+    //set_score_motor_rot( SERVO_RIGHT_BOUND );
+    //set_score_motor_rot( SERVO_LEFT_BOUND ); 
+
+    //drive_score_motor_acmer( -975 );
+    //drive_score_motor_acmel( -910 );
+
+    //set_score_motor_rot( SERVO_LEFT_BOUND ); 
+    //set_score_motor_rot( SERVO_RIGHT_BOUND );
+
+    /**
+    while(1){
+        switch( state ){
+            case ROT_LF_90:
+                if( get_supply_pegs() == NEXT ){
+                    state = ROT_RT_90;
+                }
+                break;
+            case WALL_TO_CEN:
+                if( score_supply_pegs() == NEXT ){
+                    state = ROT_RT_90;
+                }
+            default:
+                break;
+        }
+    }
+    **/
+
+    /**
+    while( 1 ){
+        switch ( state ) {
+            case WALL_TO_CEN:
+                if( to_past_line_fw_full( LS_FRONT ) == NEXT ){
+                    state = ROT_RT_90;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    **/
+
+    //drive_score_motor_acmel( 930 );
     
     /**
         if( state ){
@@ -67,10 +106,13 @@ int main(void)
     **/
 
     // NEEDS ALIGN_TO_SUPPLY_PEGS
+    while( get_supply_pegs() == CONTINUE ){
+        
+    }
   
     while (1)
     {   
-        update_light_wheel();
+        //update_light_wheel();
 
         switch( state ){
             case WALL_TO_CEN:

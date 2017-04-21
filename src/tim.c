@@ -10,6 +10,9 @@ __IO uint32_t TimingDelay = 0;
 int clock_count_l = 0;
 int clock_count_r = 0;
 
+int acmel_on = 0;
+int acmer_on = 0;
+
 void INIT_TIM1(){
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
 
@@ -67,9 +70,6 @@ void INIT_TIM2(){
     TIM_TimeBaseInit(TIM2, &time);
 
     TIM2 -> DIER |= TIM_DIER_UIE;
-
-    // Enable Counter
-    //TIM2 -> CR1 |= TIM_CR1_CEN;
 }
 
 void EnableTimerInterrupt_TIM2(){
@@ -95,9 +95,6 @@ void INIT_TIM6(){
     TIM_TimeBaseInit(TIM6, &time);
 
     TIM6 -> DIER |= TIM_DIER_UIE;
-
-    // Enable Counter
-    //TIM2 -> CR1 |= TIM_CR1_CEN;
 }
 
 void EnableTimerInterrupt_TIM6(){
@@ -153,7 +150,7 @@ void INIT_TIM4(){
     time.TIM_RepetitionCounter = 0;
     TIM_TimeBaseInit(TIM4, &time);
 
-    TIM4 -> CCR1 = CCR_ZERO; 
+    TIM4 -> CCR1 = SERVO_RIGHT_BOUND; 
 
     TIM4 -> CCER |= TIM_CCER_CC1E;
 
@@ -229,6 +226,12 @@ void TIM2_IRQHandler(){
 
         if( count == clock_count_l ){
             count = 0;
+            acmel_on = 0;
+
+            if( !acmer_on ){
+                resetPin( STEPPER_PORT, STEPPER_LR_POWER );
+            }
+
             TIM2 -> CR1 &= ~TIM_CR1_CEN;
         }
     }
@@ -265,6 +268,12 @@ void TIM6_DAC_IRQHandler(){
 
         if( count == clock_count_r ){
             count = 0;
+            acmer_on = 0;
+
+            if( !acmel_on ){
+                resetPin( STEPPER_PORT, STEPPER_LR_POWER );
+            }
+
             TIM6 -> CR1 &= ~TIM_CR1_CEN;
         }
     }

@@ -6,6 +6,9 @@
 extern int clock_count_l;
 extern int clock_count_r;
 
+extern int acmel_on;
+extern int acmer_on;
+
 void init_drive_motors(){
     GPIO_INIT( DRIVE_MOTOR_PORT, LEFT_DRIVE_MOTOR | RIGHT_DRIVE_MOTOR | CENTER_DRIVE_MOTOR | LEFT_DRIVE_MOTOR_DIR | RIGHT_DRIVE_MOTOR_DIR | CENTER_DRIVE_MOTOR_DIR | SERVO_1 );
 
@@ -20,8 +23,8 @@ void init_drive_motors(){
 }
 
 void init_score_motors(){
-    GPIO_INIT( STEPPER_PORT, STEPPER_L | STEPPER_DIR_L | STEPPER_R | STEPPER_DIR_R );
-    resetPin( STEPPER_PORT, STEPPER_L | STEPPER_DIR_L | STEPPER_R | STEPPER_DIR_R );
+    GPIO_INIT( STEPPER_PORT, STEPPER_L | STEPPER_DIR_L | STEPPER_R | STEPPER_DIR_R | STEPPER_LR_POWER );
+    resetPin( STEPPER_PORT, STEPPER_L | STEPPER_DIR_L | STEPPER_R | STEPPER_DIR_R | STEPPER_LR_POWER );
 
     INIT_TIM2();
     EnableTimerInterrupt_TIM2();
@@ -154,6 +157,9 @@ void drive_center_motor( MOTOR_SPEED_STATE mss, MOTOR_MOVEMENT_STATE mms ){
 
 // Negative Rotation Value means reverse rotation
 void drive_score_motor_acmel(int rot){
+    setPin( STEPPER_PORT, STEPPER_LR_POWER );
+    acmel_on = 1;
+
     if( rot < 0 ){
         rot *= -1;
         resetPin( STEPPER_PORT, STEPPER_DIR_L );
@@ -166,6 +172,9 @@ void drive_score_motor_acmel(int rot){
 }
 
 void drive_score_motor_acmer(int rot){
+    setPin( STEPPER_PORT, STEPPER_LR_POWER );
+    acmer_on = 1;
+
     if( rot < 0 ){
         rot *= -1;
         resetPin( STEPPER_PORT, STEPPER_DIR_R );
