@@ -429,75 +429,42 @@ STATE_TRANSITION align_to_pegs( SUP_SCO_ST sss ){
     static int count = 0;
 
     if( sss == SCO_ST ){
+        SENSOR_LOC loc = line_loc2_cf( LS_SCORE );
         switch( state ){
             case TO_PAST_LINE:
                 if( fw_slow( LS_SCORE ) == NEXT ){
 
+                    drive_center_motor( SLOW_FW, NORMAL );
                     state = ALIGN_LEFT;
-                    ps = TO_PAST_LINE;
                 }
 
-                break;
-
-            case ALIGN_RIGHT:
-                if( ps != ALIGN_RIGHT ){
-                    drive_center_motor( FAST_RV, NORMAL );
-                }
-
-                state = ALIGN_DELAY;
-                ps = ALIGN_RIGHT; 
                 break;
 
             case ALIGN_LEFT:
-                if( ps != ALIGN_LEFT ){
-                    drive_center_motor( FAST_FW, NORMAL );
-                }
+                if( loc == LEFT || loc == CENTER ){
+                    drive_center_motor( SLOW_RV, NORMAL );
 
-                state = ALIGN_DELAY;
-                ps = ALIGN_LEFT; 
+                    state = ALIGN_RIGHT;
+                }
                 
                 break;
 
-            case ALIGN_STOPPED:
-                if( ps != ALIGN_STOPPED ){
+            case ALIGN_RIGHT:
+                if( loc == RIGHT || loc == CENTER ){
                     drive_center_motor( STOPPED, NORMAL );
-                }
 
-                state = ALIGN_DELAY;
-                ps = ALIGN_STOPPED;
-
-            case ALIGN_DELAY:
-                if( ++count == ALIGN_DELAY_COUNT ){
-                    count = 0;
-
-                    SENSOR_LOC loc;
-                    // SCORE 
-                    loc = line_loc2( LS_SCORE );
-
-                    if( loc == FULL ){
-                        if( ps == ALIGN_STOPPED ){
-                            state = TO_PAST_LINE;
-                            ps = TO_PAST_LINE;
-                            return NEXT;
-                        }
-
-                        state = ALIGN_STOPPED;
-                    
-                    }else if( loc == RIGHT ){
-                        state = ALIGN_RIGHT;
-                    }else if( loc == LEFT ){
-                        state = ALIGN_LEFT;
-                    }
-
-                    // Otherwise Restart Delay Count
+                    state = TO_PAST_LINE;
+                    return NEXT;
                 }
 
                 break;
+
             default:
                 state = TO_PAST_LINE;
                 ps = TO_PAST_LINE;
                 break;
-            }
+        }
+
     }else{
 
         SENSOR_LOC sploc = line_loc2( LS_SUPPLY );
