@@ -15,3 +15,7 @@ void init_bumper(){
 int front_bumper_dep(){
     return (((BUMPER_PORT -> IDR) & BUMPER_FRONT) == BUMPER_FRONT);
 }
+
+int back_bumper_dep(){
+    return (((BUMPER_PORT -> IDR) & BUMPER_BACK) == BUMPER_BACK);
+}

@@ -102,26 +102,3 @@ SENSOR_LOC line_loc2( LINE_SENSOR_T ls_t ){
         return EMPTY;
     }
 }
-
-SENSOR_LOC line_loc2_cf( LINE_SENSOR_T ls_t ){
-    uint16_t sensor;
-    if( ls_t == LS_SCORE ){
-        sensor = (LS_PORT_SC_SP -> IDR) & 0x03;
-    }else if( ls_t == LS_SUPPLY ){
-        sensor = ((LS_PORT_SC_SP -> IDR) >> 2) & 0x03;
-    }else{
-        sensor = 0;
-    }
-  
-    if( sensor == FULL_MASK ){
-        return FULL;
-    }else if( sensor & (LEFT_MASK | RIGHT_MASK) ){
-        return CENTER;
-    }else if( sensor & LEFT_MASK ){
-        return LEFT;
-    }else if( sensor & RIGHT_MASK ){
-        return RIGHT;
-    }else{
-        return EMPTY;
-    }
-}

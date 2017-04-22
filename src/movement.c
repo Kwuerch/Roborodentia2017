@@ -116,9 +116,8 @@ STATE_TRANSITION to_before_line_fw( LINE_SENSOR_T ls_t ){
             }
 
             if( loc == FULL ){
-                drive_left_motor( STOPPED, NORMAL );
-                drive_right_motor( STOPPED, NORMAL );
-                motors_on = 0;
+                drive_left_motor( SLOW_RV, NORMAL );
+                drive_right_motor( SLOW_RV, NORMAL );
 
                 state = TO_BEFORE_LINE;
             }
@@ -126,12 +125,6 @@ STATE_TRANSITION to_before_line_fw( LINE_SENSOR_T ls_t ){
             break;
 
         case TO_BEFORE_LINE:
-            if( !motors_on ){
-                drive_left_motor( SLOW_RV, NORMAL );
-                drive_right_motor( SLOW_RV, NORMAL );
-                motors_on = 1;
-            }
-
             if( floc == FULL ){
                 drive_left_motor( STOPPED, NORMAL );
                 drive_right_motor( STOPPED, NORMAL );
@@ -234,10 +227,59 @@ STATE_TRANSITION to_past_line_fw_full( LINE_SENSOR_T ls_t ){
     return CONTINUE;
 }
 
+STATE_TRANSITION to_past_line_rv_full_skip( LINE_SENSOR_T ls_t ){
+    static ALIGN_STATE state = TO_LINE;
+
+    static int motors_on = 0;
+
+    SENSOR_LOC loc = line_loc( ls_t );
+    switch( state ){
+        case TO_LINE:
+            if( !motors_on ){
+                drive_left_motor( SLOW_RV, NORMAL );
+                drive_right_motor( SLOW_RV, NORMAL );
+                motors_on = 1;
+            }
+
+            if( loc == FULL ){
+                state = TO_PAST_LINE;
+            }
+
+            break;
+
+        case TO_PAST_LINE:
+            if( loc == EMPTY ){
+                drive_left_motor( SLOW_FW, NORMAL );
+                drive_right_motor( SLOW_FW, NORMAL );
+
+                Delay( 500 );
+
+                drive_left_motor( STOPPED, NORMAL );
+                drive_right_motor( STOPPED, NORMAL );
+
+                motors_on = 0;
+
+                state = TO_LINE;
+                return NEXT;
+            }
+
+            break;
+        
+        default:
+            state = TO_LINE;
+            motors_on = 0;
+            break;
+
+    }
+
+    return CONTINUE;
+
+}
+
 // ONLY TO be used with full line_sensors
 STATE_TRANSITION to_past_line_rv_full( LINE_SENSOR_T ls_t ){
     static ALIGN_STATE state = TO_LINE;
-    static ALIGN_STATE ps = TO_LINE;
+
     static int motors_on = 0;
 
     SENSOR_LOC loc = line_loc( ls_t );
@@ -255,7 +297,6 @@ STATE_TRANSITION to_past_line_rv_full( LINE_SENSOR_T ls_t ){
                 motors_on = 0;
 
                 state = TO_PAST_LINE;
-                ps = TO_LINE;
             }
 
             break;
@@ -267,7 +308,6 @@ STATE_TRANSITION to_past_line_rv_full( LINE_SENSOR_T ls_t ){
                 motors_on = 0;
 
                 state = TO_LINE;
-                ps = TO_LINE;
                 return NEXT;
             }
 
@@ -281,7 +321,6 @@ STATE_TRANSITION to_past_line_rv_full( LINE_SENSOR_T ls_t ){
         
         default:
             state = TO_LINE;
-            ps = TO_LINE;
             motors_on = 0;
             break;
 
@@ -289,6 +328,8 @@ STATE_TRANSITION to_past_line_rv_full( LINE_SENSOR_T ls_t ){
 
     return CONTINUE;
 }
+
+/**
 STATE_TRANSITION align_to_center_pegsl(){
     static ALIGN_STATE state = ALIGN_LEFT;
     static ALIGN_STATE ps = ALIGN_DELAY;
@@ -355,67 +396,79 @@ STATE_TRANSITION align_to_center_pegsl(){
     return CONTINUE;
 
 }
+**/
 
-STATE_TRANSITION align_to_center_pegsr(){
-    static ALIGN_STATE state = ALIGN_RIGHT;
-    static ALIGN_STATE ps = ALIGN_DELAY;
-    static int count = 0;
+STATE_TRANSITION align_to_center_pegsl(){
+    static ALIGN_STATE state = ALIGN_LEFT;
+
+    SENSOR_LOC loc = line_loc( LS_FRONT );
 
     switch( state ){
+        /**
         case ALIGN_RIGHT:
-            if( ps != ALIGN_RIGHT ){
-                drive_center_motor( FAST_RV, NORMAL );
+            if( loc == RIGHT ){
+                drive_center_motor( SLOW_RV, NORMAL );
+                state = ALIGN_STOPPED;
             }
 
-            state = ALIGN_DELAY;
-            ps = ALIGN_RIGHT;
             break;
+        **/
 
         case ALIGN_LEFT:
-            if( ps != ALIGN_LEFT ){
-                drive_center_motor( FAST_FW, NORMAL );
-            }
+            drive_center_motor( SLOW_FW, NORMAL );
+            state = ALIGN_STOPPED;
 
-            state = ALIGN_DELAY;
-            ps = ALIGN_LEFT;
             break;
         
         case ALIGN_STOPPED:
-            if( ps != ALIGN_STOPPED ){
+            if( loc == CENTER ){
                 drive_center_motor( STOPPED, NORMAL );
-            }
-
-            state = ALIGN_DELAY;
-            ps = ALIGN_STOPPED;
-            break;
-
-        case ALIGN_DELAY:
-            if( ++count == ALIGN_DELAY_COUNT ){
-                count = 0;
-                SENSOR_LOC loc = line_loc( LS_FRONT );
-
-                if( loc == CENTER ){
-                    if( ps == ALIGN_STOPPED ){
-                        state = ALIGN_RIGHT;
-                        ps = ALIGN_DELAY;
-                        return NEXT;
-                    }
-
-                    state = ALIGN_STOPPED;
-                
-                }else if( loc == RIGHT ){
-                    state = ALIGN_RIGHT;
-                }else if( loc == LEFT ){
-                    state = ALIGN_LEFT;
-                }
-
-                // Otherwise Restart Delay Count
+                state = ALIGN_RIGHT;
+                return NEXT;
             }
 
             break;
+
         default:
             state = ALIGN_RIGHT;
-            ps = ALIGN_DELAY;
+            break;
+    }
+
+    return CONTINUE;
+
+}
+
+STATE_TRANSITION align_to_center_pegsr(){
+    static ALIGN_STATE state = ALIGN_RIGHT;
+
+    SENSOR_LOC loc = line_loc( LS_FRONT );
+
+    switch( state ){
+        case ALIGN_RIGHT:
+            drive_center_motor( SLOW_RV, NORMAL );
+
+            state = ALIGN_STOPPED;
+            break;
+
+        case ALIGN_LEFT:
+            if( loc == LEFT ){
+                drive_center_motor( SLOW_FW, NORMAL );
+                state = ALIGN_STOPPED;
+            }
+
+            break;
+        
+        case ALIGN_STOPPED:
+            if( loc == CENTER ){
+                drive_center_motor( STOPPED, NORMAL );
+                state = ALIGN_RIGHT;
+                return NEXT;
+            }
+
+            break;
+
+        default:
+            state = ALIGN_RIGHT;
             break;
     }
 
@@ -425,11 +478,10 @@ STATE_TRANSITION align_to_center_pegsr(){
 
 STATE_TRANSITION align_to_pegs( SUP_SCO_ST sss ){
     static ALIGN_STATE state = TO_PAST_LINE; 
-    static ALIGN_STATE ps = TO_PAST_LINE;
-    static int count = 0;
 
     if( sss == SCO_ST ){
-        SENSOR_LOC loc = line_loc2_cf( LS_SCORE );
+        SENSOR_LOC loc = line_loc2( LS_SCORE );
+
         switch( state ){
             case TO_PAST_LINE:
                 if( fw_slow( LS_SCORE ) == NEXT ){
@@ -441,7 +493,17 @@ STATE_TRANSITION align_to_pegs( SUP_SCO_ST sss ){
                 break;
 
             case ALIGN_LEFT:
-                if( loc == LEFT || loc == CENTER ){
+                if( loc == FULL ){
+                    drive_center_motor( STOPPED, NORMAL );
+                    state = TO_PAST_LINE;
+                    return NEXT;
+                }
+
+                break;
+
+            /**
+            case ALIGN_LEFT:
+                if( loc == LEFT || loc == FULL ){
                     drive_center_motor( SLOW_RV, NORMAL );
 
                     state = ALIGN_RIGHT;
@@ -450,7 +512,7 @@ STATE_TRANSITION align_to_pegs( SUP_SCO_ST sss ){
                 break;
 
             case ALIGN_RIGHT:
-                if( loc == RIGHT || loc == CENTER ){
+                if( loc == RIGHT || loc == FULL ){
                     drive_center_motor( STOPPED, NORMAL );
 
                     state = TO_PAST_LINE;
@@ -458,10 +520,10 @@ STATE_TRANSITION align_to_pegs( SUP_SCO_ST sss ){
                 }
 
                 break;
+            **/
 
             default:
                 state = TO_PAST_LINE;
-                ps = TO_PAST_LINE;
                 break;
         }
 
@@ -475,8 +537,6 @@ STATE_TRANSITION align_to_pegs( SUP_SCO_ST sss ){
 
                     state = ALIGN_LEFT;
                     drive_center_motor( SLOW_FW, NORMAL );
-
-                    ps = TO_PAST_LINE;
                 }
 
                 break;
@@ -501,6 +561,7 @@ STATE_TRANSITION align_to_pegs( SUP_SCO_ST sss ){
             case ALIGN_RIGHT:
                 if( sploc == RIGHT ){
                     drive_center_motor( STOPPED, NORMAL );
+
                     state = TO_PAST_LINE;
                     return NEXT;
                 }
@@ -520,12 +581,17 @@ STATE_TRANSITION align_to_pegs( SUP_SCO_ST sss ){
     return CONTINUE;
 }
 
-STATE_TRANSITION wall_to_cen(){
+STATE_TRANSITION wall_to_cen( SUP_SCO_ST sss ){
     static FSM_STATE state = ALIGN_TO_CENTER;
 
     switch( state ){
         case ALIGN_TO_CENTER:
             if( align_to_center_pegsr() == NEXT ){
+
+                if( sss == SUP_ST ){
+                    set_score_motor_rot( SERVO_RIGHT_BOUND );
+                }
+
                 state = TO_CENTER;
             }
             break;

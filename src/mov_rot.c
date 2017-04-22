@@ -23,7 +23,7 @@ STATE_TRANSITION rotate_left_90(){
                 motors_on = 1;
             }
 
-            if( scloc == RIGHT ){
+            if( scloc != EMPTY ){
                 state = TURNING_ON_LINE;
             }
             break;
@@ -63,7 +63,7 @@ STATE_TRANSITION rotate_right_90(){
             }
 
 
-            if( scloc == LEFT ){
+            if( scloc != EMPTY ){
                 state = TURNING_ON_LINE;
             }
             break;

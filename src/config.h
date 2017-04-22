@@ -8,8 +8,8 @@
 #define RIGHT_DRIVE_MOTOR_CCR   TIM1 -> CCR2
 #define CENTER_DRIVE_MOTOR_CCR  TIM3 -> CCR1
 
-#define SERVO_LEFT_BOUND 590
-#define SERVO_RIGHT_BOUND 960 
+#define SERVO_LEFT_BOUND 570
+#define SERVO_RIGHT_BOUND 950 
 #define SERVO_CENTER  850 
 
 #define CCR_ZERO 5 
@@ -32,8 +32,8 @@
 #define ACMEL_TIM TIM2
 #define ACMER_TIM TIM5
 
-#define ACMER_ROT_VAL 975
-#define ACMEL_ROT_VAL 910
+#define ACMER_ROT_VAL 1035 
+#define ACMEL_ROT_VAL 980
 
 #define STEPPER_PORT GPIOC
 
@@ -54,7 +54,8 @@
 #define MOTOR_SPEED_SLOW 700 
 
 // Pwm diff of right and left from normal speed
-#define MOTOR_TURNING_DIFF 30 
+//#define MOTOR_TURNING_DIFF 30 
+#define MOTOR_TURNING_DIFF 50
 
 // Pwm diff of right - left motors
 #define MOTOR_DIFF  -50
@@ -63,11 +64,17 @@
 #define BUMPER_PORT_CLOCK RCC_AHBPeriph_GPIOB
 #define BUMPER_PORT GPIOB
 
-#define BUMPER_PINS GPIO_Pin_0 | GPIO_Pin_1
+#define BUMPER_PINS GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_12 | GPIO_Pin_13
 
-#define BUMPER_LEFT_PIN GPIO_Pin_0
-#define BUMPER_RIGHT_PIN GPIO_Pin_1
-#define BUMPER_FRONT (BUMPER_LEFT_PIN | BUMPER_RIGHT_PIN)
+#define BUMPER_LEFT_PIN_F GPIO_Pin_0
+#define BUMPER_RIGHT_PIN_F GPIO_Pin_1
+
+#define BUMPER_LEFT_PIN_B GPIO_Pin_12
+#define BUMPER_RIGHT_PIN_B GPIO_Pin_13
+
+#define BUMPER_FRONT (BUMPER_LEFT_PIN_F | BUMPER_RIGHT_PIN_F )
+
+#define BUMPER_BACK (BUMPER_LEFT_PIN_B | BUMPER_RIGHT_PIN_B )
 
 /** Line Sensor **/
 
@@ -97,7 +104,9 @@
 /** Timer **/
 #define PWM_RANGE 990
 
-#define TURN_DELAY 1500
+#define TURN_DELAY_LONG 1500
+#define TURN_DELAY_SHORT 750
+#define LEFT_RIGHT_ALIGNMENT_DELAY 750
 
 /** Light Wheel **/
 #define LED3 GPIO_Pin_9

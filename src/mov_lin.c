@@ -20,6 +20,9 @@ STATE_TRANSITION fw_slow(){
     if( front_bumper_dep() ){
         drive_left_motor( STOPPED, NORMAL );
         drive_right_motor( STOPPED, NORMAL );
+
+        motors_on = 0;
+
         return NEXT;
     }
 
@@ -258,8 +261,8 @@ STATE_TRANSITION follow_line_rv(){
             break;
 
         case OVER_LEFT:
-            drive_left_motor( FAST_RV, PIVOT );
-            drive_right_motor( FAST_RV, MOVING );
+            drive_left_motor( FAST_RV, MOVING );
+            drive_right_motor( FAST_RV, PIVOT );
 
             ps = OVER_LEFT;
             state = WAIT;
@@ -282,12 +285,14 @@ STATE_TRANSITION follow_line_rv(){
                 if( ps != OVER_LEFT ){
                     state = OVER_LEFT;
                 }
-            }else{
-                if( ps == CENTERED ){
+            }else if( loc == CENTER ){
+                if( ps != CENTERED ){
                     state = CENTERED;
                 }
             }
 
+            // If empty, should maintain its previous state
+            
             break;
 
         default:
