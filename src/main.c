@@ -132,7 +132,7 @@ int main(void)
 
                         if( !hit_flag ){
                             state = SET_FLAG;
-                            hit_flag = 1;
+                            //hit_flag = 1;
                         }else{
                             state = ROT_LF_90;
                         }

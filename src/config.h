@@ -58,7 +58,7 @@
 //#define MOTOR_SPEED_FAST 750 
 #define MOTOR_SPEED_FAST 800 
 //#define MOTOR_SPEED_SLOW 700 
-#define MOTOR_SPEED_SLOW 730
+#define MOTOR_SPEED_SLOW 735
 
 // Pwm diff of right and left from normal speed
 //#define MOTOR_TURNING_DIFF 30 
