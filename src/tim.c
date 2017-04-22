@@ -151,11 +151,13 @@ void INIT_TIM4(){
     TIM_TimeBaseInit(TIM4, &time);
 
     TIM4 -> CCR1 = SERVO_RIGHT_BOUND; 
+    TIM4 -> CCR2 = SERVO_FLAG_RIGHT_BOUND; 
 
-    TIM4 -> CCER |= TIM_CCER_CC1E;
+    TIM4 -> CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E;
 
     TIM4 -> DIER |= TIM_DIER_UIE |
-                    TIM_DIER_CC1IE;
+                   TIM_DIER_CC1IE |
+                   TIM_DIER_CC2IE;
 
     // Enable Counter
     TIM4 -> CR1  |= TIM_CR1_CEN;
@@ -249,11 +251,20 @@ void TIM3_IRQHandler(){
 
 void TIM4_IRQHandler(){
     if( TIM4 -> SR & TIM_SR_UIF ){
+
         TIM4 -> SR &= ~TIM_SR_UIF;
         setPin( SERVO_PORT, SERVO_1 );
+        setPin( SERVO_PORT, SERVO_FLAG );
+
     }else if( TIM4 -> SR & TIM_SR_CC1IF ){
+
         TIM4 -> SR &= ~TIM_SR_CC1IF;
         resetPin( SERVO_PORT, SERVO_1 );
+
+    }else if( TIM4 -> SR & TIM_SR_CC2IF ){
+
+        TIM4 -> SR &= ~TIM_SR_CC2IF;
+        resetPin( SERVO_PORT, SERVO_FLAG );
     }
 }
 

@@ -10,7 +10,7 @@ extern int acmel_on;
 extern int acmer_on;
 
 void init_drive_motors(){
-    GPIO_INIT( DRIVE_MOTOR_PORT, LEFT_DRIVE_MOTOR | RIGHT_DRIVE_MOTOR | CENTER_DRIVE_MOTOR | LEFT_DRIVE_MOTOR_DIR | RIGHT_DRIVE_MOTOR_DIR | CENTER_DRIVE_MOTOR_DIR | SERVO_1 );
+    GPIO_INIT( DRIVE_MOTOR_PORT, LEFT_DRIVE_MOTOR | RIGHT_DRIVE_MOTOR | CENTER_DRIVE_MOTOR | LEFT_DRIVE_MOTOR_DIR | RIGHT_DRIVE_MOTOR_DIR | CENTER_DRIVE_MOTOR_DIR | SERVO_1 | SERVO_FLAG);
 
     INIT_TIM1();
     EnableTimerInterrupt_TIM1();
@@ -185,6 +185,11 @@ void drive_score_motor_acmer(int rot){
     clock_count_r = rot * 2;
     TIM6 -> CR1 |= TIM_CR1_CEN;
 }
+
+void set_flag_motor_rot( int pos ){
+    SERVO_TIM -> CCR2 = pos;
+}
+
 
 // Pos is between 50 and 950
 void set_score_motor_rot(int pos){

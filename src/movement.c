@@ -249,10 +249,12 @@ STATE_TRANSITION to_past_line_rv_full_skip( LINE_SENSOR_T ls_t ){
 
         case TO_PAST_LINE:
             if( loc == EMPTY ){
+                /**
                 drive_left_motor( SLOW_FW, NORMAL );
                 drive_right_motor( SLOW_FW, NORMAL );
 
                 Delay( 500 );
+                **/
 
                 drive_left_motor( STOPPED, NORMAL );
                 drive_right_motor( STOPPED, NORMAL );
@@ -494,6 +496,10 @@ STATE_TRANSITION align_to_pegs( SUP_SCO_ST sss ){
 
             case ALIGN_LEFT:
                 if( loc == FULL ){
+                    drive_center_motor( SLOW_RV, NORMAL );
+
+                    Delay( 500 );
+
                     drive_center_motor( STOPPED, NORMAL );
                     state = TO_PAST_LINE;
                     return NEXT;

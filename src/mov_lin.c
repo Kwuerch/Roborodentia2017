@@ -299,7 +299,7 @@ STATE_TRANSITION follow_line_rv(){
             state = CENTERED;
     }
 
-    if( loc == FULL ){
+    if( loc == FULL || back_bumper_dep() ){
         drive_left_motor( STOPPED, NORMAL );
         drive_right_motor( STOPPED, NORMAL );
 

@@ -3,9 +3,10 @@
 #include "line_sensor.h"
 #include "movement.h"
 #include "motor.h"
+#include "mov_lin.h"
 
 typedef enum{
-    TO_WALL, GOING_TO_WALL, TO_LINE, SCORE_RINGS, ALIGNING, TO_LINE_FRONT, TO_LINE_SCORE, TO_PAST_LINE_SCORE, TO_ALIGN_FRONT, TO_LINE_ALIGN, TO_LINE_RV
+    TO_WALL, GOING_TO_WALL, TO_LINE, SCORE_RINGS, ALIGNING, TO_LINE_FRONT, TO_LINE_SCORE, TO_PAST_LINE_SCORE, TO_ALIGN_FRONT, TO_LINE_ALIGN, TO_LINE_RV, TO_CENTER, FROM_CENTER, TO_PAST_LINE, REALIGN_ROT
 }FSM_STATE;
 
 extern int acmer_on;
@@ -32,6 +33,8 @@ STATE_TRANSITION get_supply_pegs_short(){
 
                 set_score_motor_rot( SERVO_CENTER ); 
 
+                Delay( 1500 );
+
                 state = TO_LINE;
             }
 
@@ -53,6 +56,85 @@ STATE_TRANSITION get_supply_pegs_short(){
     }
 
     return CONTINUE;
+}
+
+STATE_TRANSITION set_flag(){
+    static FSM_STATE state = FROM_CENTER;
+    static int motors_on = 0;
+
+    SENSOR_LOC loc = line_loc2( LS_SCORE );
+    SENSOR_LOC bloc = line_loc( LS_BACK );
+    SENSOR_LOC floc = line_loc( LS_FRONT );
+
+    switch( state ){
+
+
+        case FROM_CENTER:
+            if( follow_line_rv() == NEXT ){
+                drive_left_motor( STOPPED, NORMAL );
+                drive_right_motor( STOPPED, NORMAL );
+
+                if( floc == EMPTY ){
+                    state = REALIGN_ROT;
+                    break;
+                }
+
+                set_flag_motor_rot( SERVO_FLAG_LEFT_BOUND );
+
+                Delay( 1000 );
+
+                state = TO_CENTER;
+            }
+
+            break;
+
+        case REALIGN_ROT:
+            if( align_to_center_pegsr() == NEXT ){
+                set_flag_motor_rot( SERVO_FLAG_LEFT_BOUND );
+
+                Delay( 1000 );
+
+                state = TO_CENTER;
+            }
+
+            break;
+
+        case TO_CENTER:
+
+            if( follow_line_fw() == NEXT ){
+                drive_left_motor( FAST_FW, NORMAL );
+                drive_right_motor( FAST_FW, NORMAL );
+
+                state = TO_LINE;
+            }
+            break;
+
+        case TO_LINE:
+            if( loc == FULL ){
+                set_flag_motor_rot( SERVO_FLAG_RIGHT_BOUND );
+                state = TO_PAST_LINE;
+            }
+
+            break;
+
+        case TO_PAST_LINE:
+            if( loc == EMPTY ){
+                drive_left_motor( STOPPED, NORMAL );
+                drive_right_motor( STOPPED, NORMAL );
+
+                state = FROM_CENTER;
+                return NEXT;
+            }
+
+            break;
+
+        default:
+            state = FROM_CENTER;
+            break;
+    }
+
+    return CONTINUE;
+
 }
 
 STATE_TRANSITION get_supply_pegs(){
@@ -160,6 +242,8 @@ STATE_TRANSITION get_supply_pegs(){
 
                 set_score_motor_rot( SERVO_CENTER ); 
 
+                Delay( 1500 );
+
                 state = TO_LINE_RV;
             }
 
@@ -255,6 +339,11 @@ STATE_TRANSITION score_supply_pegs(){
     switch( state ){
         case TO_WALL:
             if( !motors_on ){
+                drive_left_motor( FAST_RV, NORMAL );
+                drive_right_motor( FAST_RV, NORMAL );
+
+                Delay( 900 );
+
                 drive_left_motor( SLOW_FW, NORMAL );
                 drive_right_motor( SLOW_FW, NORMAL );
                 motors_on = 1;
@@ -278,6 +367,8 @@ STATE_TRANSITION score_supply_pegs(){
             }
 
             if( !acmer_on && !acmel_on ){
+                Delay(500);
+
                 motors_on = 0;
                 drive_score_motor_acmer( -1 * ACMER_ROT_VAL );
                 drive_score_motor_acmel( -1 * ACMEL_ROT_VAL );

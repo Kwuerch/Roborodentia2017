@@ -15,7 +15,7 @@
 RCC_ClocksTypeDef RCC_Clocks;
 
 typedef enum{
-    WALL_TO_CEN, ROT_RT_90, ROT_LF_90, CEN_TO_WALL
+    WALL_TO_CEN, ROT_RT_90, ROT_LF_90, CEN_TO_WALL, SET_FLAG
 }FSM_STATE;
 
 int test_line_sensor( LINE_SENSOR_T lss){
@@ -51,9 +51,10 @@ int main(void)
     drive_right_motor( STOPPED, NORMAL );
     drive_center_motor( STOPPED, NORMAL );
 
+    int hit_flag = 0;
+
     //test_line_sensor( LS_SCORE );
-    //set_score_motor_rot( SERVO_RIGHT_BOUND );
-    //set_score_motor_rot( SERVO_LEFT_BOUND ); 
+
 
     //set_score_motor_rot( SERVO_RIGHT_BOUND );
     //set_score_motor_rot( SERVO_LEFT_BOUND ); 
@@ -129,7 +130,12 @@ int main(void)
                         drive_left_motor( STOPPED, NORMAL );
                         drive_right_motor( STOPPED, NORMAL );
 
-                        state = ROT_LF_90;
+                        if( !hit_flag ){
+                            state = SET_FLAG;
+                            hit_flag = 1;
+                        }else{
+                            state = ROT_LF_90;
+                        }
 
                     }else{
                         // SUP_ST
@@ -150,13 +156,19 @@ int main(void)
                 if( rotate_left_90() == NEXT ){
                     state = CEN_TO_WALL;
                 }
-            break;
+                break;
 
             case ROT_RT_90:
                 if( rotate_right_90() == NEXT ){
                     state = CEN_TO_WALL;
                 }
-            break;
+                break;
+
+            case SET_FLAG:
+                if( set_flag() == NEXT ){
+                    state = ROT_LF_90;
+                }
+                break;
 
             case CEN_TO_WALL:
                 if( cen_to_wall( sss ) == NEXT){
@@ -169,7 +181,7 @@ int main(void)
                         sss = SCO_ST;
                     }
                 }
-            break;
+                break;
 
             default:
                 state = WALL_TO_CEN;

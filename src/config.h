@@ -10,7 +10,10 @@
 
 #define SERVO_LEFT_BOUND 570
 #define SERVO_RIGHT_BOUND 950 
-#define SERVO_CENTER  850 
+#define SERVO_CENTER  810 /**850 **/
+
+#define SERVO_FLAG_RIGHT_BOUND 350
+#define SERVO_FLAG_LEFT_BOUND 1200
 
 #define CCR_ZERO 5 
 #define TIM_PERIOD 1000
@@ -50,12 +53,16 @@
 #define SERVO_1 GPIO_Pin_8
 #define SERVO_TIM TIM4
 
-#define MOTOR_SPEED_FAST 750 
-#define MOTOR_SPEED_SLOW 700 
+#define SERVO_FLAG GPIO_Pin_12
+
+//#define MOTOR_SPEED_FAST 750 
+#define MOTOR_SPEED_FAST 800 
+//#define MOTOR_SPEED_SLOW 700 
+#define MOTOR_SPEED_SLOW 730
 
 // Pwm diff of right and left from normal speed
 //#define MOTOR_TURNING_DIFF 30 
-#define MOTOR_TURNING_DIFF 50
+#define MOTOR_TURNING_DIFF 75
 
 // Pwm diff of right - left motors
 #define MOTOR_DIFF  -50
@@ -104,8 +111,10 @@
 /** Timer **/
 #define PWM_RANGE 990
 
+//#define TURN_DELAY_LONG 1500
 #define TURN_DELAY_LONG 1500
-#define TURN_DELAY_SHORT 750
+//#define TURN_DELAY_SHORT 250
+#define TURN_DELAY_SHORT 100
 #define LEFT_RIGHT_ALIGNMENT_DELAY 750
 
 /** Light Wheel **/

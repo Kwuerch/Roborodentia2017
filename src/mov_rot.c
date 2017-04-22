@@ -69,7 +69,7 @@ STATE_TRANSITION rotate_right_90(){
             break;
 
         case TURNING_ON_LINE:
-            if( floc == RIGHT ){
+            if( floc == CENTER ){
                 drive_left_motor( STOPPED, NORMAL );
                 drive_right_motor( STOPPED, NORMAL );
 
